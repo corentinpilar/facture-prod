@@ -6,43 +6,80 @@ import time
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-# 1. CONFIGURATION ET DESIGN
+# 1. CONFIGURATION ET DESIGN "APP MOBILE"
 st.set_page_config(page_title="© Le Faux Soir - PDF Manager", page_icon="🎬", layout="centered")
 
 st.markdown("""
     <style>
-    /* Masquer la liste de fichiers par défaut */
+    /* 1. STYLISATION DES TABS (Boutons du haut) */
+    button[data-baseweb="tab"] {
+        background-color: transparent !important;
+        border: none !important;
+        border-radius: 12px !important;
+        margin: 5px !important;
+        padding: 10px 20px !important;
+        transition: all 0.3s ease !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px !important;
+    }
+
+    button[data-baseweb="tab"]:hover {
+        background-color: rgba(255, 75, 75, 0.1) !important;
+        color: #FF4B4B !important;
+    }
+
+    button[data-baseweb="tab"][aria-selected="true"] {
+        background-color: #FF4B4B !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3) !important;
+    }
+
+    /* Masquer la ligne de soulignement par défaut de Streamlit */
+    div[data-baseweb="tab-list"] {
+        gap: 10px !important;
+        background-color: rgba(0,0,0,0.05) !important;
+        padding: 8px !important;
+        border-radius: 16px !important;
+        border-bottom: none !important;
+    }
+    
+    div[data-baseweb="tab-highlight"] {
+        background-color: transparent !important;
+    }
+
+    /* 2. ZONE DE DÉPÔT "FLOTTANTE" */
     [data-testid="stFileUploaderFileList"] { display: none !important; }
     
-    /* Bouton personnalisé zone de dépôt */
-    div[data-testid="stFileUploaderDropzone"]::after {
-        content: "📁 Parcourir les fichiers";
-        display: inline-block; background-color: #FF4B4B; color: white;
-        padding: 10px 20px; border-radius: 8px; cursor: pointer;
-        position: absolute; right: 20px; top: 20px; font-weight: bold;
-    }
-    
-    div[data-testid="stFileUploaderDropzone"] section > div > div::before {
-        content: "🎬 Déposez les documents ici";
-        display: block; font-size: 1.2rem; font-weight: bold; color: #FAFAFA;
+    div[data-testid="stFileUploaderDropzone"] {
+        border: 2px dashed #FF4B4B !important;
+        border-radius: 20px !important;
+        background-color: rgba(255, 75, 75, 0.02) !important;
+        padding: 40px !important;
+        transition: transform 0.2s ease !important;
     }
 
-    /* FIX COULEUR TEXTE SIDEBAR (Compatibilité Thème Clair/Sombre) */
-    [data-testid="stSidebar"] .stMarkdown p {
-        color: #31333F !important; /* Couleur par défaut lisible */
+    div[data-testid="stFileUploaderDropzone"]:hover {
+        transform: scale(1.01);
+        background-color: rgba(255, 75, 75, 0.05) !important;
+    }
+
+    /* 3. SIDEBAR LOOK "APPLE" */
+    [data-testid="stSidebar"] {
+        background-color: #F8F9FB !important;
     }
     
-    /* Si l'utilisateur est en thème sombre, on adapte */
     @media (prefers-color-scheme: dark) {
-        [data-testid="stSidebar"] .stMarkdown p {
-            color: #FAFAFA !important;
-        }
+        [data-testid="stSidebar"] { background-color: #111111 !important; }
+        div[data-baseweb="tab-list"] { background-color: rgba(255,255,255,0.05) !important; }
     }
 
-    /* Réduction des marges entre les blocs du guide */
-    [data-testid="stVerticalBlock"] > div {
-        padding-top: 0.1rem !important;
-        padding-bottom: 0.1rem !important;
+    /* Fix lisibilité sidebar */
+    [data-testid="stSidebar"] .stMarkdown p {
+        color: #31333F !important;
+        font-size: 0.95rem !important;
+    }
+    @media (prefers-color-scheme: dark) {
+        [data-testid="stSidebar"] .stMarkdown p { color: #FAFAFA !important; }
     }
     </style>
     """, unsafe_allow_html=True)
@@ -50,43 +87,37 @@ st.markdown("""
 # Initialisation
 if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
 
-# --- BARRE LATÉRALE : GUIDE D'UTILISATION (LISIBILITÉ FORCÉE) ---
+# --- BARRE LATÉRALE ---
 with st.sidebar:
     st.title("📖 Guide")
-    
-    # Étape 1
     with st.container(border=True):
         st.markdown("**🚀 Étape 1 : Préparation**")
         st.markdown("<small>Dossier 'OK Laurie'. Déposez les PDFs, générez et téléchargez le fichier unique.</small>", unsafe_allow_html=True)
-    
-    # Étape 2
     with st.container(border=True):
         st.markdown("**✍️ Étape 2 : Signature**")
         st.markdown("<small>Utilisez Dropbox Sign Frakas pour faire signer le PDF unique.</small>", unsafe_allow_html=True)
-    
-    # Étape 3
     with st.container(border=True):
         st.markdown("**📦 Étape 3 : Split & BOB**")
-        st.markdown("<small>Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures pour BOB.</small>", unsafe_allow_html=True)
-    
+        st.markdown("<small>Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures.</small>", unsafe_allow_html=True)
     st.markdown(" ")
-    st.markdown("<p style='font-size: 0.8em; opacity: 0.7;'>LE FAUX SOIR - FRAKAS PRODUCTIONS</p>", unsafe_allow_html=True)
+    st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
-st.markdown("<p style='font-size: 1.2em; color: #FF4B4B; margin-top: -20px; font-weight: bold;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 1.1em; color: gray; margin-top: -20px;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["➕ 1. PRÉPARER (Fusion)", "✂️ 2. EXTRAIRE (BOB)"])
+# Utilisation d'onglets stylisés avec Emojis
+tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
 
 # --- ONGLET 1 : FUSION ---
 with tab1:
-    st.subheader("1. Fusionner pour signature")
+    st.markdown("### 📄 Fusionner pour signature")
     files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
         st.divider()
-        with st.expander(f"👁️ Liste des fichiers ({len(files)})", expanded=True):
+        with st.expander(f"👁️ Voir les {len(files)} fichiers", expanded=False):
             for idx, f in enumerate(fichiers_tries, 1):
                 st.markdown(f"✅ **{idx}.** {f.name}")
         
@@ -108,11 +139,12 @@ with tab1:
                 st.rerun()
 
     if st.session_state.PDF_data:
+        st.markdown("---")
         st.download_button("📥 TÉLÉCHARGER LE PDF POUR SIGNATURE", st.session_state.PDF_data, st.session_state.PDF_name, use_container_width=True)
 
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
-    st.subheader("2. Extraire pour encodage BOB")
+    st.markdown("### ✂️ Découper le PDF signé")
     PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
     if PDF_signe:
@@ -120,7 +152,7 @@ with tab2:
             try:
                 reader = PdfReader(PDF_signe)
                 if "/StructureProd" not in reader.metadata:
-                    st.error("Erreur : Ce PDF ne provient pas de l'étape 1.")
+                    st.error("Ce PDF n'est pas compatible.")
                 else:
                     carte = json.loads(reader.metadata["/StructureProd"])
                     last_page = reader.pages[-1]
@@ -147,9 +179,9 @@ with tab2:
                     progress_bar.empty()
                     nom_archive = f"LFS - à encoder - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
                     st.success(f"✅ {total_items} documents extraits.")
-                    st.download_button(f"⬇️ TÉLÉCHARGER : {nom_archive}", zip_out.getvalue(), nom_archive, use_container_width=True)
+                    st.download_button(f"⬇️ TÉLÉCHARGER LE ZIP", zip_out.getvalue(), nom_archive, use_container_width=True)
             except Exception as e:
                 st.error(f"Erreur : {e}")
 
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #555; font-size: 0.85em;'>© Copyright - Corentin Pilarczyk</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #888; font-size: 0.8em;'>© Copyright - Corentin Pilarczyk</div>", unsafe_allow_html=True)
