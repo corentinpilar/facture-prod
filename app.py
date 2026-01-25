@@ -36,7 +36,7 @@ with st.sidebar:
     with st.expander("🚀 Étape 1 : Préparation", expanded=True):
         st.write("""
         1. Allez dans le dossier **'OK Laurie'**.
-        2. Glissez tous les PDF dans la zone rouge.
+        2. Glissez/déposez tous les PDFs qui ont été validés par Laurie .
         3. Cliquez sur **Générer**.
         4. Téléchargez le PDF unique.
         """)
