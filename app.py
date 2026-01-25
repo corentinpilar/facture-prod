@@ -7,7 +7,7 @@ from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
 # 1. CONFIGURATION ET DESIGN
-st.set_page_config(page_title="© Corentin Pilarczyk", page_icon="🎬", layout="centered")
+st.set_page_config(page_title="© Le Faux Soir - PDF Manager", page_icon="🎬", layout="centered")
 
 st.markdown("""
     <style>
