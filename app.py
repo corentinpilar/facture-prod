@@ -28,32 +28,34 @@ st.markdown("""
 # Initialisation
 if 'pdf_data' not in st.session_state: st.session_state.pdf_data = None
 
-# --- BARRE LATÉRALE : GUIDE D'UTILISATION ---
+# --- BARRE LATÉRALE : GUIDE D'UTILISATION FIXE ---
 with st.sidebar:
     st.title("📖 Guide d'utilisation")
     st.markdown("---")
     
-    with st.expander("🚀 Étape 1 : Préparation", expanded=True):
-        st.write("""
-        1. Allez dans le dossier **'OK Laurie'**.
-        2. Glissez/déposez tous les PDFs qui ont été validés par Laurie .
-        3. Cliquez sur **Générer**.
-        4. Téléchargez le PDF unique.
-        """)
-        
-    with st.expander("✍️ Étape 2 : Signature"):
-        st.write("""
-        1. Ouvrez le compte **Dropbox Sign** Frakas.
-        2. Envoyez le PDF unique pour signature.
-        """)
-        
-    with st.expander("📦 Étape 3 : Isoler les pdfs pour l'encodage"):
-        st.write("""
-        1. Allez sur l'onglet **EXTRAIRE**.
-        2. Déposez le PDF signé.
-        3. Le système va séparer chaque facture et y joindre la preuve de signature DropBox.
-        4. Téléchargez l'archive pour encoder chaque facture signée dans **BOB**.
-        """)
+    st.markdown("### 🚀 Étape 1 : Préparation")
+    st.write("""
+    1. Allez dans le dossier **'OK Laurie'**.
+    2. Glissez/déposez les PDFs validés.
+    3. Cliquez sur **Générer**.
+    4. Téléchargez le PDF unique.
+    """)
+    
+    st.markdown("---")
+    st.markdown("### ✍️ Étape 2 : Signature")
+    st.write("""
+    1. Ouvrez le compte **Dropbox Sign** Frakas.
+    2. Envoyez le PDF unique pour signature.
+    """)
+    
+    st.markdown("---")
+    st.markdown("### 📦 Étape 3 : Isoler pour BOB")
+    st.write("""
+    1. Allez sur l'onglet **EXTRAIRE**.
+    2. Déposez le PDF signé.
+    3. Le système sépare les factures + preuve.
+    4. Téléchargez l'archive pour **BOB**.
+    """)
     
     st.markdown("---")
     st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
