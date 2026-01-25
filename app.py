@@ -85,7 +85,7 @@ with tab2:
         Déposer le pdf global signé par le.la directeur.rice de production ou post-production.
         </p>
         <p style='font-size: 0.9em; color: gray; margin-top: 5px;'>
-        Après téléchargement, les pdfs signés seront prêts à être encodés.
+        Après téléchargement, les pdfs signés seront prêts à être encodés dans BOB.
         </p>
         """, unsafe_allow_html=True)
     
