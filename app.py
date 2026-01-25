@@ -11,7 +11,7 @@ st.set_page_config(page_title="© Le Faux Soir - PDF Manager", page_icon="🎬",
 
 st.markdown("""
     <style>
-    /* 1. STYLISATION DES TABS (Look Bouton iOS/Android) */
+    /* STYLISATION DES TABS */
     button[data-baseweb="tab"] {
         background-color: transparent !important;
         border: none !important;
@@ -23,44 +23,10 @@ st.markdown("""
         letter-spacing: 0.5px !important;
     }
 
-    button[data-baseweb="tab"]:hover {
-        background-color: rgba(255, 75, 75, 0.1) !important;
-        color: #FF4B4B !important;
-    }
-
     button[data-baseweb="tab"][aria-selected="true"] {
         background-color: #FF4B4B !important;
         color: white !important;
         box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3) !important;
-    }
-
-    div[data-baseweb="tab-list"] {
-        gap: 10px !important;
-        background-color: rgba(0,0,0,0.05) !important;
-        padding: 8px !important;
-        border-radius: 16px !important;
-        border-bottom: none !important;
-    }
-    
-    div[data-baseweb="tab-highlight"] {
-        background-color: transparent !important;
-    }
-
-    /* 2. BARRE LATÉRALE - FIXE ET LISIBLE */
-    [data-testid="stSidebar"] {
-        background-color: #F8F9FB !important;
-    }
-    
-    @media (prefers-color-scheme: dark) {
-        [data-testid="stSidebar"] { background-color: #111111 !important; }
-    }
-
-    [data-testid="stSidebar"] .stMarkdown p {
-        color: #31333F !important;
-        line-height: 1.4 !important;
-    }
-    @media (prefers-color-scheme: dark) {
-        [data-testid="stSidebar"] .stMarkdown p { color: #FAFAFA !important; }
     }
 
     /* Zone d'upload style App */
@@ -68,7 +34,6 @@ st.markdown("""
     div[data-testid="stFileUploaderDropzone"] {
         border: 2px dashed #FF4B4B !important;
         border-radius: 20px !important;
-        background-color: rgba(255, 75, 75, 0.02) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -79,55 +44,39 @@ if 'uploader_key' not in st.session_state: st.session_state.uploader_key = 0
 # --- BARRE LATÉRALE ---
 with st.sidebar:
     st.title("📖 Guide")
-    
     with st.container(border=True):
         st.markdown("**🚀 1. Préparation**")
-        st.markdown("Déposez les PDFs validés, générez et téléchargez le fichier unique sur votre ordinateur.")
-    
-    with st.container(border=True):
-        st.markdown("**✍️ 2. Signature**")
-        st.markdown("Utilisez le compte **Dropbox Sign** Frakas pour faire signer le PDF unique.")
+        st.markdown("Fusionnez les PDFs. La nomenclature d'origine (MAJUSCULES) est conservée dans les métadonnées.")
     
     with st.container(border=True):
         st.markdown("**📦 3. Split & BOB**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE** pour récupérer les factures séparées.")
+        st.markdown("L'extraction restaure exactement le nom de fichier initial avec le suffixe (signed).")
     
     st.markdown("### 📞 Contact")
     st.info("**Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)")
-    
-    st.markdown(" ")
     st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
-st.markdown("<p style='font-size: 1.1em; color: gray; margin-top: -20px;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
 
 # --- ONGLET 1 : FUSION ---
 with tab1:
     st.markdown("### 📂 Fusionner pour signature")
-    
-    files = st.file_uploader(
-        "uploader_1", 
-        type="pdf", 
-        accept_multiple_files=True, 
-        label_visibility="collapsed",
-        key=f"uploader_{st.session_state.uploader_key}"
-    )
+    files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed", key=f"up_{st.session_state.uploader_key}")
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
         st.divider()
         st.markdown(f"**Fichiers prêts ({len(files)}) :**")
-        for idx, f in enumerate(fichiers_tries, 1):
+        for f in fichiers_tries:
             st.markdown(f"✅ {f.name}")
         
-        st.markdown(" ")
         col1, col2 = st.columns(2)
-        
         with col1:
             writer = PdfWriter()
+            # On stocke le nom EXACT (avec majuscules)
             carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
             for f in fichiers_tries: writer.append(f)
             writer.add_metadata({"/StructureProd": json.dumps(carte)})
@@ -144,9 +93,8 @@ with tab1:
                 use_container_width=True,
                 type="primary"
             )
-        
         with col2:
-            if st.button("🗑️ VIDER TOUT", key="btn_reset_1", use_container_width=True):
+            if st.button("🗑️ VIDER TOUT", key="reset_1", use_container_width=True):
                 st.session_state.uploader_key += 1
                 st.rerun()
 
@@ -159,11 +107,8 @@ with tab2:
         try:
             reader = PdfReader(PDF_signe)
             if "/StructureProd" not in reader.metadata:
-                st.error("⚠️ Ce PDF n'est pas issu de l'étape 1 (Métadonnées manquantes).")
+                st.error("⚠️ Erreur : Ce PDF ne contient pas les informations de nomenclature.")
             else:
-                st.success("✅ Structure reconnue. Prêt pour le split.")
-                
-                # Préparation du ZIP
                 carte = json.loads(reader.metadata["/StructureProd"])
                 last_page = reader.pages[-1]
                 zip_out = io.BytesIO()
@@ -172,41 +117,41 @@ with tab2:
                 with zipfile.ZipFile(zip_out, "w") as zf:
                     for item in carte:
                         sw = PdfWriter()
-                        # On récupère les pages de la facture
                         for p in range(current_page, current_page + item["p"]):
                             sw.add_page(reader.pages[p])
-                        # On ajoute la page de signature (dernière page du PDF global)
                         sw.add_page(last_page)
                         current_page += item["p"]
                         
                         buf = io.BytesIO()
                         sw.write(buf)
-                        nom_final = item["n"].lower().replace(".pdf", " (signed).pdf")
+                        
+                        # --- CORRECTION NOMENCLATURE ---
+                        # On garde le nom item["n"] tel quel (SANS .lower())
+                        nom_origine = item["n"]
+                        if nom_origine.lower().endswith('.pdf'):
+                            nom_final = nom_origine[:-4] + " (SIGNED).pdf"
+                        else:
+                            nom_final = nom_origine + " (SIGNED).pdf"
+                        
                         zf.writestr(nom_final, buf.getvalue())
                 
-                nom_archive = f"LFS - split - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
-                
-                st.markdown(" ")
+                st.success(f"✅ Prêt ! Nomenclature conservée pour {len(carte)} fichiers.")
                 col_ex_1, col_ex_2 = st.columns(2)
-                
                 with col_ex_1:
-                    # Nouveau bouton automatique pour le split
                     st.download_button(
-                        label="⚡ TÉLÉCHARGER LES DOCUMENTS SPLITÉS",
+                        label="⚡ TÉLÉCHARGER LE ZIP (MAJ)",
                         data=zip_out.getvalue(),
-                        file_name=nom_archive,
+                        file_name=f"LFS_SPLIT_{datetime.now().strftime('%d-%m-%Y')}.zip",
                         mime="application/zip",
                         use_container_width=True,
                         type="primary"
                     )
-                
                 with col_ex_2:
-                    if st.button("🗑️ VIDER TOUT", key="btn_reset_2", use_container_width=True):
+                    if st.button("🗑️ VIDER TOUT", key="reset_2", use_container_width=True):
                         st.session_state.uploader_key += 1
                         st.rerun()
-                        
         except Exception as e:
-            st.error(f"Erreur lors de la lecture : {e}")
+            st.error(f"Erreur : {e}")
 
 st.markdown("---")
 st.markdown("<div style='text-align: center; color: #888; font-size: 0.8em;'>© Copyright - Corentin Pilarczyk</div>", unsafe_allow_html=True)
