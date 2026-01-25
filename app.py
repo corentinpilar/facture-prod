@@ -91,7 +91,7 @@ with st.sidebar:
     
     with st.container(border=True):
         st.markdown("**📦 3. Split & BOB**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures.")
+        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage dans BOB.")
     
     st.markdown("### 📞 Contact")
     st.info("**Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)")
