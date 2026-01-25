@@ -8,8 +8,23 @@ from pypdf import PdfReader, PdfWriter
 # Configuration de la page
 st.set_page_config(page_title="LE FAUX SOIR - Pdf manager", page_icon="🎬")
 
-# Titre en police plus petite
+# Titre
 st.markdown("### 🎬 LE FAUX SOIR - Pdf manager")
+
+# Fonction pour la fenêtre Pop-up (Dialog)
+@st.dialog("Action requise ✍🏻")
+def popup_signature(pdf_data, pdf_name):
+    st.write(f"Le fichier **{pdf_name}** est prêt.")
+    st.info("Étape suivante : Envoyer le document à signer via Dropbox Sign.")
+    
+    # Le bouton de téléchargement est à l'intérieur du pop-up
+    st.download_button(
+        label="⬇️ Télécharger et continuer",
+        data=pdf_data,
+        file_name=pdf_name,
+        mime="application/pdf",
+        on_click=st.rerun # Ferme ou actualise après le clic
+    )
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 
@@ -19,10 +34,9 @@ with tab1:
     files = st.file_uploader("Glissez les PDF à combiner", type="pdf", accept_multiple_files=True)
     
     if files:
-        if st.button("🚀 Générer le fichier de fusion"):
+        if st.button("🚀 Générer la fusion"):
             writer = PdfWriter()
             carte = []
-            
             fichiers_tries = sorted(files, key=lambda x: x.name)
             
             for f in fichiers_tries:
@@ -31,7 +45,6 @@ with tab1:
                 n_pages = len(reader.pages)
                 carte.append({"n": f.name, "p": n_pages})
             
-            # Stockage des infos dans les métadonnées
             metadata = {"/StructureProd": json.dumps(carte)}
             writer.add_metadata(metadata)
             
@@ -39,16 +52,16 @@ with tab1:
             writer.write(pdf_out)
             ts = datetime.now().strftime("%d-%m-%Y_%Hh%M")
             
-            st.session_state.fusion_ok = True
+            # Stockage en session
             st.session_state.pdf_data = pdf_out.getvalue()
             st.session_state.pdf_name = f"DOC_A_SIGNER_{ts}.pdf"
+            st.session_state.prepret = True
 
-    if 'fusion_ok' in st.session_state:
-        # Message de succès avec l'émoji main qui signe
-        st.success("✅ Fusion terminée ! Le document est prêt à être signé ✍🏻")
-        st.download_button("⬇️ Télécharger le PDF pour signature", 
-                           data=st.session_state.pdf_data, 
-                           file_name=st.session_state.pdf_name)
+    if st.session_state.get('prepret'):
+        st.success("Fusion réussie !")
+        # Ce bouton déclenche le pop-up flou en arrière-plan
+        if st.button("✅ Terminer et télécharger"):
+            popup_signature(st.session_state.pdf_data, st.session_state.pdf_name)
 
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
@@ -60,7 +73,7 @@ with tab2:
             try:
                 reader = PdfReader(pdf_signe)
                 if "/StructureProd" not in reader.metadata:
-                    st.error("Erreur : Ce PDF ne provient pas de l'onglet PRÉPARER.")
+                    st.error("Erreur : Ce PDF ne contient pas les données de structure.")
                 else:
                     carte = json.loads(reader.metadata["/StructureProd"])
                     last_page = reader.pages[-1]
@@ -80,7 +93,6 @@ with tab2:
                             current_page += nb_pages
                             buf = io.BytesIO()
                             sw.write(buf)
-                            # Nom avec (signed)
                             zf.writestr(nom_origine.replace(".pdf", " (signed).pdf"), buf.getvalue())
                     
                     st.success("✅ Extraction terminée ✍🏻")
@@ -93,4 +105,4 @@ with tab2:
                 st.error(f"Erreur : {e}")
 
 st.markdown("---")
-st.caption("LE FAUX SOIR - Outil interne de production")
+st.caption("LE FAUX SOIR - Production")
