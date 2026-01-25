@@ -93,7 +93,7 @@ with st.sidebar:
     # Bloc 3
     with st.container(border=True):
         st.markdown("**📦 3. Split & BOB**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour BOB.")
+        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage dans BOB.")
     
     # --- AJOUT DU CONTACT ---
     st.markdown("### 📞 Contact")
