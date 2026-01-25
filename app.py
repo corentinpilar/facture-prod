@@ -97,7 +97,6 @@ with st.sidebar:
         st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour BOB.")
     
     # --- AJOUT DU CONTACT ---
-    st.markdown("---")
     st.markdown("### 📞 Contact")
     st.info("**Vous avez des questions ? Appelez-moi**")
     
