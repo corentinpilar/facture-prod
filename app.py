@@ -79,8 +79,13 @@ with tab1:
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
     st.header("2. Extraire les pièces signées")
-    # Ajout de la consigne pour l'extraction
-    st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Déposer le pdf global signé par le.la directeur.rice de production ou post-production. Les pdfs signés seront prêts à être encodés.</p>", unsafe_allow_html=True)
+    # Instruction sur deux lignes comme demandé
+    st.markdown("""
+        <p style='font-size: 0.9em; color: gray; margin-top: -15px; line-height: 1.2;'>
+        Déposer le pdf global signé par le.la directeur.rice de production ou post-production.<br>
+        Les pdfs signés seront prêts à être encodés.
+        </p>
+        """, unsafe_allow_html=True)
     
     pdf_signe = st.file_uploader("Fichier signé", type="pdf", label_visibility="collapsed")
     
@@ -96,9 +101,7 @@ with tab2:
                     carte = json.loads(reader.metadata["/StructureProd"])
                     last_page = reader.pages[-1]
                     zip_out = io.BytesIO()
-                    
                     ts_now = datetime.now().strftime("%d-%m-%Y - %Hh%M")
-                    
                     current_page = 0
                     with zipfile.ZipFile(zip_out, "w") as zf:
                         for item in carte:
