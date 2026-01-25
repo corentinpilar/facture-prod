@@ -2,34 +2,51 @@ import streamlit as st
 import json
 import io
 import zipfile
-import time
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-# 1. CONFIGURATION ET TRADUCTION CSS
-st.set_page_config(page_title="LE FAUX SOIR - Pdf manager", page_icon="🎬")
+# 1. CONFIGURATION ET DESIGN PREMIUM
+st.set_page_config(page_title="LE FAUX SOIR - Admin", page_icon="🎬", layout="centered")
 
 st.markdown("""
     <style>
+    /* Masquer les éléments techniques anglais */
     [data-testid="stFileUploaderFileList"] { display: none !important; }
     div[data-testid="stFileUploaderDropzone"] button { display: none !important; }
+    
+    /* Bouton Parcourir personnalisé */
     div[data-testid="stFileUploaderDropzone"]::after {
-        content: "Parcourir les fichiers";
+        content: "📁 Parcourir les fichiers";
         display: inline-block;
-        background-color: #262730; color: white;
-        padding: 8px 16px; border-radius: 8px;
-        border: 1px solid rgba(255,255,255,0.2);
-        position: absolute; right: 20px; top: 25px;
+        background-color: #FF4B4B;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        position: absolute; right: 20px; top: 20px;
+        font-weight: bold;
     }
+
+    /* Texte de la zone de dépôt */
     div[data-testid="stFileUploaderDropzone"] section > div > div > span { display: none !important; }
     div[data-testid="stFileUploaderDropzone"] section > div > div::before {
-        content: "Glissez et déposez vos fichiers ici";
-        display: block; font-size: 1.1rem; margin-bottom: 5px;
+        content: "🎬 Déposez les éléments de production ici";
+        display: block; font-size: 1.2rem; font-weight: bold; color: #FAFAFA;
     }
+    
+    /* Sous-titre zone de dépôt */
     div[data-testid="stFileUploaderDropzone"] section > div > div > small { display: none !important; }
     div[data-testid="stFileUploaderDropzone"] section > div > div::after {
-        content: "Limite de 200 Mo par fichier • PDF";
-        display: block; font-size: 0.8rem; color: #808495;
+        content: "Documents PDF uniquement • Max 200 Mo";
+        display: block; font-size: 0.85rem; color: #808495; margin-top: 5px;
+    }
+
+    /* Style des onglets */
+    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #1E1E1E;
+        border-radius: 5px 5px 0px 0px;
+        padding: 10px 20px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -37,118 +54,130 @@ st.markdown("""
 # Initialisation de la session
 if 'prepret' not in st.session_state: st.session_state.prepret = False
 
-# Fonction pour vider la session
 def reset_app():
     for key in ['pdf_data', 'pdf_name', 'prepret']:
         if key in st.session_state: del st.session_state[key]
     st.rerun()
 
-st.markdown("### 🎬 LE FAUX SOIR - Pdf manager")
+# --- HEADER ---
+st.title("🎬 LE FAUX SOIR")
+st.markdown("<p style='font-size: 1.2em; color: #FF4B4B; margin-top: -20px; font-weight: bold;'>Gestionnaire de Production</p>", unsafe_allow_html=True)
 
 @st.dialog("Action requise ✍🏻")
 def popup_signature(pdf_data, pdf_name):
-    st.write(f"Le fichier **{pdf_name}** est prêt.")
-    st.warning("Envoyer le document à signer via Dropbox Sign")
-    st.download_button(label="⬇️ Télécharger le document", data=pdf_data, file_name=pdf_name, mime="application/pdf")
+    st.markdown(f"### 📄 Document prêt")
+    st.write(f"Nom : `{pdf_name}`")
+    st.warning("Étape suivante : Envoyer le document via **Dropbox Sign**")
+    st.download_button(label="⬇️ Télécharger maintenant", data=pdf_data, file_name=pdf_name, mime="application/pdf", use_container_width=True)
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 
 # --- ONGLET 1 : FUSION ---
 with tab1:
-    st.header("1. Préparer le PDF unique")
-    st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Ajouter les pdfs qui sont placés dans \"OK Laurie\"</p>", unsafe_allow_html=True)
+    st.subheader("1. Préparer la liasse")
+    st.markdown("<p style='color: gray;'>Fichiers sources : dossier <b>\"OK Laurie\"</b></p>", unsafe_allow_html=True)
     
     files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
         
-        col_info, col_reset = st.columns([3, 1])
-        with col_info:
-            st.write(f"**Documents chargés ({len(files)}) :**")
-        with col_reset:
-            if st.button("🗑️ Vider la liste"): reset_app()
+        # Statistiques visuelles
+        st.markdown("---")
+        m1, m2 = st.columns(2)
+        total_p = 0
+        for f in fichiers_tries:
+            try: total_p += len(PdfReader(f).pages)
+            except: pass
         
-        total_pages = 0
-        with st.container(border=True):
+        m1.metric("Documents", len(files))
+        m2.metric("Total Pages", total_p)
+
+        # Liste rétractable
+        with st.expander("👁️ Voir le détail des fichiers chargés", expanded=True):
             for idx, f in enumerate(fichiers_tries, 1):
-                try:
-                    reader = PdfReader(f)
-                    p_count = len(reader.pages)
-                    total_pages += p_count
-                    st.markdown(f"✅ **{idx}.** {f.name} <span style='color:gray; font-size:0.8em;'>({p_count} p.)</span>", unsafe_allow_html=True)
-                except:
-                    st.error(f"❌ {f.name} n'est pas un PDF valide.")
+                st.markdown(f"✅ **{idx}.** {f.name}")
         
-        st.info(f"📊 Total estimé : **{total_pages} pages**")
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            if st.button("🚀 GÉNÉRER LA FUSION", use_container_width=True, type="primary"):
+                with st.spinner("Traitement en cours..."):
+                    writer = PdfWriter()
+                    carte = []
+                    for f in fichiers_tries:
+                        reader = PdfReader(f)
+                        writer.append(f)
+                        carte.append({"n": f.name, "p": len(reader.pages)})
+                    
+                    metadata = {"/StructureProd": json.dumps(carte)}
+                    writer.add_metadata(metadata)
+                    pdf_out = io.BytesIO()
+                    writer.write(pdf_out)
+                    
+                    ts = datetime.now().strftime("%d-%m-%Y - %Hh%M")
+                    st.session_state.pdf_name = f"LFS - à signer - {ts}.pdf"
+                    st.session_state.pdf_data = pdf_out.getvalue()
+                    st.session_state.prepret = True
+                    st.success("Fusion terminée avec succès !")
         
-        if st.button("🚀 Générer la fusion"):
-            progress_bar = st.progress(0, text="Lecture des fichiers...")
-            writer = PdfWriter()
-            carte = []
-            
-            for i, f in enumerate(fichiers_tries):
-                reader = PdfReader(f)
-                writer.append(f)
-                carte.append({"n": f.name, "p": len(reader.pages)})
-                progress_bar.progress((i + 1) / len(fichiers_tries), text=f"Fusion de {f.name}...")
-            
-            metadata = {"/StructureProd": json.dumps(carte)}
-            writer.add_metadata(metadata)
-            pdf_out = io.BytesIO()
-            writer.write(pdf_out)
-            
-            ts = datetime.now().strftime("%d-%m-%Y - %Hh%M")
-            st.session_state.pdf_name = f"LFS - à signer - {ts}.pdf"
-            st.session_state.pdf_data = pdf_out.getvalue()
-            st.session_state.prepret = True
-            progress_bar.empty()
-            st.success("Fusion réussie !")
+        with col_btn2:
+            if st.button("🗑️ VIDER LA LISTE", use_container_width=True):
+                reset_app()
 
     if st.session_state.prepret:
-        if st.button("✅ Terminer et télécharger"):
+        st.divider()
+        if st.button("📥 RÉCUPÉRER LE PDF FINAL", use_container_width=True):
             popup_signature(st.session_state.pdf_data, st.session_state.pdf_name)
 
-# --- ONGLET 2 : DECOUPAGE ---
+# --- ONGLET 2 : EXTRACTION ---
 with tab2:
-    st.header("2. Extraire les pièces signées")
-    st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Déposer le pdf global signé. <br>Les pdfs signés seront prêts à être encodés.</p>", unsafe_allow_html=True)
+    st.subheader("2. Extraire les documents")
+    st.markdown("""
+        <p style='color: gray; font-size: 0.95em;'>
+        Déposez le PDF global signé par la direction.<br>
+        Les fichiers seront séparés et prêts pour l'encodage.
+        </p>
+        """, unsafe_allow_html=True)
     
     pdf_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
     if pdf_signe:
-        st.markdown(f"✅ **Fichier prêt :** {pdf_signe.name}")
+        st.success(f"📄 Fichier signé détecté : {pdf_signe.name}")
         
-        if st.button("⚡ Extraire les factures"):
+        if st.button("⚡ LANCER L'EXTRACTION", use_container_width=True, type="primary"):
             try:
-                bar_extract = st.progress(0, text="Analyse du fichier signé...")
-                reader = PdfReader(pdf_signe)
-                if "/StructureProd" not in reader.metadata:
-                    st.error("Ce PDF ne contient pas les données de structure.")
-                else:
-                    carte = json.loads(reader.metadata["/StructureProd"])
-                    last_page = reader.pages[-1]
-                    zip_out = io.BytesIO()
-                    ts_now = datetime.now().strftime("%d-%m-%Y - %Hh%M")
-                    
-                    current_page = 0
-                    with zipfile.ZipFile(zip_out, "w") as zf:
-                        for i, item in enumerate(carte):
-                            sw = PdfWriter()
-                            for p in range(current_page, current_page + item["p"]):
-                                sw.add_page(reader.pages[p])
-                            sw.add_page(last_page)
-                            current_page += item["p"]
-                            buf = io.BytesIO()
-                            sw.write(buf)
-                            zf.writestr(item["n"].replace(".pdf", " (signed).pdf"), buf.getvalue())
-                            bar_extract.progress((i + 1) / len(carte), text=f"Extraction de {item['n']}...")
-                    
-                    bar_extract.empty()
-                    st.success("✅ Extraction terminée ✍🏻")
-                    st.download_button(label="⬇️ Télécharger l'archive ZIP", data=zip_out.getvalue(), file_name=f"LFS - à encoder - {ts_now}.zip")
+                with st.spinner("Découpage en cours..."):
+                    reader = PdfReader(pdf_signe)
+                    if "/StructureProd" not in reader.metadata:
+                        st.error("Structure manquante dans le PDF.")
+                    else:
+                        carte = json.loads(reader.metadata["/StructureProd"])
+                        last_page = reader.pages[-1]
+                        zip_out = io.BytesIO()
+                        ts_now = datetime.now().strftime("%d-%m-%Y - %Hh%M")
+                        
+                        current_page = 0
+                        with zipfile.ZipFile(zip_out, "w") as zf:
+                            for item in carte:
+                                sw = PdfWriter()
+                                for p in range(current_page, current_page + item["p"]):
+                                    sw.add_page(reader.pages[p])
+                                sw.add_page(last_page)
+                                current_page += item["p"]
+                                buf = io.BytesIO()
+                                sw.write(buf)
+                                zf.writestr(item["n"].replace(".pdf", " (signed).pdf"), buf.getvalue())
+                        
+                        st.balloons()
+                        st.download_button(label="⬇️ TÉLÉCHARGER LE PACK ZIP (Signé)", 
+                                         data=zip_out.getvalue(), 
+                                         file_name=f"LFS - à encoder - {ts_now}.zip",
+                                         use_container_width=True)
             except Exception as e:
-                st.error(f"Erreur : {e}")
+                st.error(f"Erreur technique : {e}")
 
+# --- FOOTER ---
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: gray; font-size: 0.8em;'>© Tous droits réservés - Corentin Pilarczyk</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #555; font-size: 0.85em; font-weight: bold;'>"
+            "🎬 LE FAUX SOIR - PRODUCTION<br>"
+            "© Tous droits réservés - Corentin Pilarczyk</div>", unsafe_allow_html=True)
