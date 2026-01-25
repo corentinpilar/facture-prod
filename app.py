@@ -11,7 +11,7 @@ st.set_page_config(page_title="© Le Faux Soir - PDF Manager", page_icon="🎬",
 
 st.markdown("""
     <style>
-    /* 1. STYLISATION DES TABS (Boutons du haut) */
+    /* 1. STYLISATION DES TABS (Look Bouton iOS/Android) */
     button[data-baseweb="tab"] {
         background-color: transparent !important;
         border: none !important;
@@ -34,7 +34,6 @@ st.markdown("""
         box-shadow: 0 4px 15px rgba(255, 75, 75, 0.3) !important;
     }
 
-    /* Masquer la ligne de soulignement par défaut de Streamlit */
     div[data-baseweb="tab-list"] {
         gap: 10px !important;
         background-color: rgba(0,0,0,0.05) !important;
@@ -47,39 +46,30 @@ st.markdown("""
         background-color: transparent !important;
     }
 
-    /* 2. ZONE DE DÉPÔT "FLOTTANTE" */
-    [data-testid="stFileUploaderFileList"] { display: none !important; }
-    
-    div[data-testid="stFileUploaderDropzone"] {
-        border: 2px dashed #FF4B4B !important;
-        border-radius: 20px !important;
-        background-color: rgba(255, 75, 75, 0.02) !important;
-        padding: 40px !important;
-        transition: transform 0.2s ease !important;
-    }
-
-    div[data-testid="stFileUploaderDropzone"]:hover {
-        transform: scale(1.01);
-        background-color: rgba(255, 75, 75, 0.05) !important;
-    }
-
-    /* 3. SIDEBAR LOOK "APPLE" */
+    /* 2. BARRE LATÉRALE - FIXE ET LISIBLE */
     [data-testid="stSidebar"] {
         background-color: #F8F9FB !important;
     }
     
     @media (prefers-color-scheme: dark) {
         [data-testid="stSidebar"] { background-color: #111111 !important; }
-        div[data-baseweb="tab-list"] { background-color: rgba(255,255,255,0.05) !important; }
     }
 
-    /* Fix lisibilité sidebar */
+    /* Force la couleur du texte pour éviter le gris sur gris */
     [data-testid="stSidebar"] .stMarkdown p {
         color: #31333F !important;
-        font-size: 0.95rem !important;
+        line-height: 1.4 !important;
     }
     @media (prefers-color-scheme: dark) {
         [data-testid="stSidebar"] .stMarkdown p { color: #FAFAFA !important; }
+    }
+
+    /* Zone d'upload style App */
+    [data-testid="stFileUploaderFileList"] { display: none !important; }
+    div[data-testid="stFileUploaderDropzone"] {
+        border: 2px dashed #FF4B4B !important;
+        border-radius: 20px !important;
+        background-color: rgba(255, 75, 75, 0.02) !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -87,26 +77,32 @@ st.markdown("""
 # Initialisation
 if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
 
-# --- BARRE LATÉRALE ---
+# --- BARRE LATÉRALE : GUIDE FIXE (NON RÉTRACTABLE) ---
 with st.sidebar:
     st.title("📖 Guide")
+    
+    # Bloc 1
     with st.container(border=True):
-        st.markdown("**🚀 Étape 1 : Préparation**")
-        st.markdown("<small>Dossier 'OK Laurie'. Déposez les PDFs, générez et téléchargez le fichier unique.</small>", unsafe_allow_html=True)
+        st.markdown("**🚀 1. Préparation**")
+        st.markdown("Dossier **'OK Laurie'**. Déposez les PDFs validés, générez et téléchargez le fichier unique.")
+    
+    # Bloc 2
     with st.container(border=True):
-        st.markdown("**✍️ Étape 2 : Signature**")
-        st.markdown("<small>Utilisez Dropbox Sign Frakas pour faire signer le PDF unique.</small>", unsafe_allow_html=True)
+        st.markdown("**✍️ 2. Signature**")
+        st.markdown("Utilisez le compte **Dropbox Sign** Frakas pour faire signer le PDF unique.")
+    
+    # Bloc 3
     with st.container(border=True):
-        st.markdown("**📦 Étape 3 : Split & BOB**")
-        st.markdown("<small>Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures pour l'encodage.</small>", unsafe_allow_html=True)
+        st.markdown("**📦 3. Split & BOB**")
+        st.markdown("Onglet **EXTRAIRE**. Déposez le PDF signé. Le système sépare les factures pour l'encodage.")
+    
     st.markdown(" ")
-    st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
+    st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
 st.markdown("<p style='font-size: 1.1em; color: gray; margin-top: -20px;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
-# Utilisation d'onglets stylisés avec Emojis
 tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
 
 # --- ONGLET 1 : FUSION ---
@@ -117,10 +113,12 @@ with tab1:
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
         st.divider()
-        with st.expander(f"👁️ Voir les {len(files)} fichiers", expanded=False):
-            for idx, f in enumerate(fichiers_tries, 1):
-                st.markdown(f"✅ **{idx}.** {f.name}")
+        # Liste fixe des fichiers pour plus de clarté
+        st.markdown(f"**Fichiers prêts ({len(files)}) :**")
+        for idx, f in enumerate(fichiers_tries, 1):
+            st.markdown(f"✅ {f.name}")
         
+        st.markdown(" ")
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🚀 GÉNÉRER LE PDF", key="btn_gen", use_container_width=True, type="primary"):
@@ -139,7 +137,7 @@ with tab1:
                 st.rerun()
 
     if st.session_state.PDF_data:
-        st.markdown("---")
+        st.divider()
         st.download_button("📥 TÉLÉCHARGER LE PDF POUR SIGNATURE", st.session_state.PDF_data, st.session_state.PDF_name, use_container_width=True)
 
 # --- ONGLET 2 : EXTRACTION ---
@@ -152,7 +150,7 @@ with tab2:
             try:
                 reader = PdfReader(PDF_signe)
                 if "/StructureProd" not in reader.metadata:
-                    st.error("Ce PDF n'est pas compatible.")
+                    st.error("Ce PDF n'est pas issu de l'étape 1.")
                 else:
                     carte = json.loads(reader.metadata["/StructureProd"])
                     last_page = reader.pages[-1]
