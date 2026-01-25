@@ -82,15 +82,15 @@ with st.sidebar:
     
     with st.container(border=True):
         st.markdown("**🚀 1. Préparation**")
-        st.markdown("Déposez les PDFs validés depuis **'OK Laurie'**, générez et téléchargez le fichier unique sur votre ordinateur.")
+        st.markdown("Déposez les PDFs validés, générez et téléchargez le fichier unique sur votre ordinateur.")
     
     with st.container(border=True):
         st.markdown("**✍️ 2. Signature**")
         st.markdown("Utilisez le compte **Dropbox Sign** Frakas pour faire signer le PDF unique.")
     
     with st.container(border=True):
-        st.markdown("**💻 3. Split**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage dans BOB.")
+        st.markdown("**📦 3. Split & BOB**")
+        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE** pour récupérer les factures séparées.")
     
     st.markdown("### 📞 Contact")
     st.info("**Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)")
@@ -127,7 +127,6 @@ with tab1:
         col1, col2 = st.columns(2)
         
         with col1:
-            # Création du PDF à la volée pour le download_button
             writer = PdfWriter()
             carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
             for f in fichiers_tries: writer.append(f)
@@ -137,7 +136,6 @@ with tab1:
             writer.write(PDF_out)
             nom_fichier = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
             
-            # Le bouton de génération devient directement un bouton de téléchargement
             st.download_button(
                 label="🚀 GÉNÉRER & TÉLÉCHARGER",
                 data=PDF_out.getvalue(),
@@ -148,7 +146,7 @@ with tab1:
             )
         
         with col2:
-            if st.button("🗑️ VIDER TOUT", key="btn_reset", use_container_width=True):
+            if st.button("🗑️ VIDER TOUT", key="btn_reset_1", use_container_width=True):
                 st.session_state.uploader_key += 1
                 st.rerun()
 
@@ -158,40 +156,57 @@ with tab2:
     PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed", key=f"split_{st.session_state.uploader_key}")
     
     if PDF_signe:
-        if st.button("⚡ LANCER L'EXTRACTION", key="btn_extract", use_container_width=True, type="primary"):
-            try:
-                reader = PdfReader(PDF_signe)
-                if "/StructureProd" not in reader.metadata:
-                    st.error("Ce PDF n'est pas issu de l'étape 1.")
-                else:
-                    carte = json.loads(reader.metadata["/StructureProd"])
-                    last_page = reader.pages[-1]
-                    zip_out = io.BytesIO()
-                    current_page = 0
-                    
-                    progress_bar = st.progress(0)
-                    total_items = len(carte)
-                    
-                    with zipfile.ZipFile(zip_out, "w") as zf:
-                        for i, item in enumerate(carte):
-                            progress_bar.progress((i + 1) / total_items)
-                            sw = PdfWriter()
-                            for p in range(current_page, current_page + item["p"]):
-                                sw.add_page(reader.pages[p])
-                            sw.add_page(last_page)
-                            current_page += item["p"]
-                            buf = io.BytesIO()
-                            sw.write(buf)
-                            nom_final = item["n"].lower().replace(".pdf", " (signed).pdf")
-                            zf.writestr(nom_final, buf.getvalue())
-                            time.sleep(0.05)
-                    
-                    progress_bar.empty()
-                    nom_archive = f"LFS - à encoder - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
-                    st.success(f"✅ {total_items} documents extraits.")
-                    st.download_button(f"⬇️ TÉLÉCHARGER LE ZIP", zip_out.getvalue(), nom_archive, use_container_width=True)
-            except Exception as e:
-                st.error(f"Erreur : {e}")
+        try:
+            reader = PdfReader(PDF_signe)
+            if "/StructureProd" not in reader.metadata:
+                st.error("⚠️ Ce PDF n'est pas issu de l'étape 1 (Métadonnées manquantes).")
+            else:
+                st.success("✅ Structure reconnue. Prêt pour le split.")
+                
+                # Préparation du ZIP
+                carte = json.loads(reader.metadata["/StructureProd"])
+                last_page = reader.pages[-1]
+                zip_out = io.BytesIO()
+                current_page = 0
+                
+                with zipfile.ZipFile(zip_out, "w") as zf:
+                    for item in carte:
+                        sw = PdfWriter()
+                        # On récupère les pages de la facture
+                        for p in range(current_page, current_page + item["p"]):
+                            sw.add_page(reader.pages[p])
+                        # On ajoute la page de signature (dernière page du PDF global)
+                        sw.add_page(last_page)
+                        current_page += item["p"]
+                        
+                        buf = io.BytesIO()
+                        sw.write(buf)
+                        nom_final = item["n"].lower().replace(".pdf", " (signed).pdf")
+                        zf.writestr(nom_final, buf.getvalue())
+                
+                nom_archive = f"LFS - split - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
+                
+                st.markdown(" ")
+                col_ex_1, col_ex_2 = st.columns(2)
+                
+                with col_ex_1:
+                    # Nouveau bouton automatique pour le split
+                    st.download_button(
+                        label="⚡ TÉLÉCHARGER LES DOCUMENTS SPLITÉS",
+                        data=zip_out.getvalue(),
+                        file_name=nom_archive,
+                        mime="application/zip",
+                        use_container_width=True,
+                        type="primary"
+                    )
+                
+                with col_ex_2:
+                    if st.button("🗑️ VIDER TOUT", key="btn_reset_2", use_container_width=True):
+                        st.session_state.uploader_key += 1
+                        st.rerun()
+                        
+        except Exception as e:
+            st.error(f"Erreur lors de la lecture : {e}")
 
 st.markdown("---")
 st.markdown("<div style='text-align: center; color: #888; font-size: 0.8em;'>© Copyright - Corentin Pilarczyk</div>", unsafe_allow_html=True)
