@@ -42,19 +42,22 @@ with tab2:
     json_file = st.file_uploader("Le fichier JSON correspondant", type="json")
     if signed_pdf and json_file:
         if st.button("Extraire les factures individuelles"):
-            carte = json.load(json_file)
-            reader = PdfReader(signed_pdf)
-            last_page = reader.pages[-1]
-            zip_out = io.BytesIO()
-            with zipfile.ZipFile(zip_out, "w") as zf:
-                for e in carte:
-                    sw = PdfWriter()
-                    for i in range(e["debut"]-1, e["fin"]):
-                        sw.add_page(reader.pages[i])
-                    sw.add_page(last_page)
-                    buf = io.BytesIO()
-                    sw.write(buf)
-                    zf.writestr(e["nom"].replace(".pdf", " (signed).pdf"), buf.getvalue())
-            
-            st.success("Extraction terminée !")
-            st.download_button("⬇️ Télécharger toutes les pièces (ZIP)", data=zip_out.getvalue(), file_name="factures_signees.zip")
+            try:
+                carte = json.load(json_file)
+                reader = PdfReader(signed_pdf)
+                last_page = reader.pages[-1]
+                zip_out = io.BytesIO()
+                with zipfile.ZipFile(zip_out, "w") as zf:
+                    for e in carte:
+                        sw = PdfWriter()
+                        for i in range(e["debut"]-1, e["fin"]):
+                            sw.add_page(reader.pages[i])
+                        sw.add_page(last_page)
+                        buf = io.BytesIO()
+                        sw.write(buf)
+                        zf.writestr(e["nom"].replace(".pdf", " (signed).pdf"), buf.getvalue())
+                
+                st.success("Extraction terminée !")
+                st.download_button("⬇️ Télécharger toutes les pièces (ZIP)", data=zip_out.getvalue(), file_name="factures_signees.zip")
+            except Exception as e:
+                st.error(f"Erreur : {e}. Vérifiez que le fichier JSON correspond bien au PDF.")
