@@ -99,8 +99,7 @@ with st.sidebar:
     st.markdown("### 📞 Contact")
     # Remplace ton_email@exemple.com par ton adresse réelle
     st.info("""
-    **Une question ou suggestion ?** [📩 Cliquez ici pour m'écrire](mailto:ton_email@exemple.com)  
-    ou appelez-moi.
+    **Une question ou suggestion ?** [📩 Cliquez ici pour m'écrire](mailto:corentin.pilar@icloud.com)  
     """)
     
     st.markdown(" ")
