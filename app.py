@@ -74,7 +74,7 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 
 # --- ONGLET 1 : FUSION ---
 with tab1:
-    st.subheader("1. Préparer la liasse")
+    st.subheader("1. Préparer le pdf gloable pour signature.")
     st.markdown("<p style='color: gray;'>Fichiers sources : dossier <b>\"OK Laurie\"</b></p>", unsafe_allow_html=True)
     
     files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
