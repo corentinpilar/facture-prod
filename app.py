@@ -8,7 +8,7 @@ from pypdf import PdfReader, PdfWriter
 st.set_page_config(page_title="PDF Manager Prod", page_icon="🎬")
 
 st.title("🎬 PDF Manager - Admin Production")
-st.write("Interface simplifiée : plus besoin de fichier JSON.")
+st.write("Interface simplifiée : les noms originaux sont conservés avec mention (signed).")
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 
@@ -29,10 +29,9 @@ with tab1:
                 reader = PdfReader(f)
                 writer.append(f)
                 n_pages = len(reader.pages)
-                # On stocke le nom et le nombre de pages
                 carte.append({"n": f.name, "p": n_pages})
             
-            # ASTUCE : On cache la structure dans les métadonnées du PDF
+            # On cache la structure dans les métadonnées du PDF
             metadata = {"/StructureProd": json.dumps(carte)}
             writer.add_metadata(metadata)
             
@@ -52,15 +51,15 @@ with tab2:
         if st.button("⚡ Extraire les factures"):
             try:
                 reader = PdfReader(pdf_signe)
-                # On récupère la carte cachée dans le PDF
                 if "/StructureProd" not in reader.metadata:
-                    st.error("Ce PDF n'a pas été créé avec cette application ou les données ont été perdues.")
+                    st.error("Ce PDF n'a pas été créé avec cette application.")
                 else:
                     carte = json.loads(reader.metadata["/StructureProd"])
-                    last_page = reader.pages[-1] # Le certificat
+                    last_page = reader.pages[-1]
                     
                     zip_out = io.BytesIO()
                     current_page = 0
+                    ts_download = datetime.now().strftime("%d-%m-%Y_%Hh%M")
                     
                     with zipfile.ZipFile(zip_out, "w") as zf:
                         for item in carte:
@@ -68,20 +67,23 @@ with tab2:
                             nb_pages = item["p"]
                             nom_origine = item["n"]
                             
-                            # On extrait les pages correspondantes
                             for i in range(current_page, current_page + nb_pages):
                                 sw.add_page(reader.pages[i])
                             
-                            # On ajoute le certificat
                             sw.add_page(last_page)
                             current_page += nb_pages
                             
-                            # Sauvegarde dans le ZIP
                             buf = io.BytesIO()
                             sw.write(buf)
-                            zf.writestr(nom_origine.replace(".pdf", " (signé).pdf"), buf.getvalue())
+                            # Changement ici : on utilise (signed)
+                            zf.writestr(nom_origine.replace(".pdf", " (signed).pdf"), buf.getvalue())
                     
-                    st.success("✅ Toutes les factures ont été extraites avec leurs noms d'origine !")
-                    st.download_button("⬇️ Télécharger l'archive ZIP", data=zip_out.getvalue(), file_name="FACTURES_SIGNEES.zip")
+                    st.success(f"✅ Extraction terminée !")
+                    # Changement ici : le nom du ZIP contient la date
+                    st.download_button(
+                        label="⬇️ Télécharger l'archive ZIP", 
+                        data=zip_out.getvalue(), 
+                        file_name=f"FACTURES_SIGNEES_{ts_download}.zip"
+                    )
             except Exception as e:
                 st.error(f"Erreur lors de l'extraction : {e}")
