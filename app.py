@@ -5,10 +5,12 @@ import zipfile
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-st.set_page_config(page_title="PDF Manager Prod", page_icon="🎬")
+# Configuration de l'onglet du navigateur
+st.set_page_config(page_title="LE FAUX SOIR - Pdf manager", page_icon="🎬")
 
-st.title("🎬 PDF Manager - Admin Production")
-st.write("Interface simplifiée : les noms originaux sont conservés avec mention (signed).")
+# Titre personnalisé plus petit
+st.markdown("### 🎬 LE FAUX SOIR - Pdf manager")
+st.write("Gestion simplifiée des signatures de production.")
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 
@@ -31,7 +33,7 @@ with tab1:
                 n_pages = len(reader.pages)
                 carte.append({"n": f.name, "p": n_pages})
             
-            # On cache la structure dans les métadonnées du PDF
+            # Stockage des infos dans les métadonnées cachées
             metadata = {"/StructureProd": json.dumps(carte)}
             writer.add_metadata(metadata)
             
@@ -39,27 +41,27 @@ with tab1:
             writer.write(pdf_out)
             ts = datetime.now().strftime("%d-%m-%Y_%Hh%M")
             
-            st.success("✅ PDF créé ! Envoyez ce fichier unique à la signature.")
+            st.success("✅ PDF créé avec succès.")
             st.download_button("⬇️ Télécharger le PDF", data=pdf_out.getvalue(), file_name=f"DOC_A_SIGNER_{ts}.pdf")
 
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
     st.header("2. Extraire les pièces signées")
-    pdf_signe = st.file_uploader("Importez uniquement le PDF signé", type="pdf")
+    pdf_signe = st.file_uploader("Importez le PDF signé", type="pdf")
     
     if pdf_signe:
         if st.button("⚡ Extraire les factures"):
             try:
                 reader = PdfReader(pdf_signe)
                 if "/StructureProd" not in reader.metadata:
-                    st.error("Ce PDF n'a pas été créé avec cette application.")
+                    st.error("Ce PDF ne contient pas les informations de découpage.")
                 else:
                     carte = json.loads(reader.metadata["/StructureProd"])
-                    last_page = reader.pages[-1]
+                    last_page = reader.pages[-1] # Le certificat de signature
                     
                     zip_out = io.BytesIO()
                     current_page = 0
-                    ts_download = datetime.now().strftime("%d-%m-%Y_%Hh%M")
+                    ts_now = datetime.now().strftime("%d-%m-%Y_%Hh%M")
                     
                     with zipfile.ZipFile(zip_out, "w") as zf:
                         for item in carte:
@@ -75,15 +77,18 @@ with tab2:
                             
                             buf = io.BytesIO()
                             sw.write(buf)
-                            # Changement ici : on utilise (signed)
+                            # Nom du document avec (signed)
                             zf.writestr(nom_origine.replace(".pdf", " (signed).pdf"), buf.getvalue())
                     
-                    st.success(f"✅ Extraction terminée !")
-                    # Changement ici : le nom du ZIP contient la date
+                    st.success("✅ Extraction terminée.")
+                    # Nom du ZIP avec date et heure
                     st.download_button(
                         label="⬇️ Télécharger l'archive ZIP", 
                         data=zip_out.getvalue(), 
-                        file_name=f"FACTURES_SIGNEES_{ts_download}.zip"
+                        file_name=f"FACTURES_SIGNEES_{ts_now}.zip"
                     )
             except Exception as e:
-                st.error(f"Erreur lors de l'extraction : {e}")
+                st.error(f"Erreur : {e}")
+
+st.markdown("---")
+st.caption("Fait pour l'administration de production.")
