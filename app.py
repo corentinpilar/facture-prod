@@ -71,7 +71,7 @@ with st.sidebar:
     """)
     
     st.markdown("---")
-    st.markdown("### 📦 Étape 3 : Split pour BOB")
+    st.markdown("### 👾 Étape 3 : Split pour BOB")
     st.write("""
     1. Onglet **EXTRAIRE**.
     2. Déposez le PDF signé.
