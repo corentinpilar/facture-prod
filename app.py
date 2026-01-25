@@ -94,7 +94,12 @@ with st.sidebar:
     # Bloc 3
     with st.container(border=True):
         st.markdown("**📦 3. Split & BOB**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour leur encodage dans BOB.")
+        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour BOB.")
+    
+    # --- AJOUT DU CONTACT ---
+    st.markdown("---")
+    st.markdown("### 📞 Contact")
+    st.info("**Vous avez des questions ? Appelez-moi**")
     
     st.markdown(" ")
     st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
@@ -113,7 +118,6 @@ with tab1:
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
         st.divider()
-        # Liste fixe des fichiers pour plus de clarté
         st.markdown(f"**Fichiers prêts ({len(files)}) :**")
         for idx, f in enumerate(fichiers_tries, 1):
             st.markdown(f"✅ {f.name}")
