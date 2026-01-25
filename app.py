@@ -5,20 +5,49 @@ import zipfile
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-# 1. CONFIGURATION ET FORCE DE L'AFFICHAGE
+# 1. CONFIGURATION ET TRADUCTION CSS
 st.set_page_config(page_title="LE FAUX SOIR - Pdf manager", page_icon="🎬")
 
-# Bloc CSS pour masquer la pagination native et styliser la liste
 st.markdown("""
     <style>
+    /* Masquer la liste native pour éviter la pagination */
     [data-testid="stFileUploaderFileList"] {
         display: none !important;
     }
-    .file-list-container {
-        border: 1px solid #e6e9ef;
-        border-radius: 5px;
-        padding: 10px;
-        background-color: #f9f9f9;
+    
+    /* Traduction du bouton 'Browse files' */
+    section[data-testid="stFileUploader"] label button {
+        display: none;
+    }
+    section[data-testid="stFileUploader"] label::after {
+        content: "Parcourir les fichiers";
+        display: inline-block;
+        background-color: #262730;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    /* Traduction du texte 'Drag and drop' */
+    div[data-testid="stFileUploaderDropzone"] div div::before {
+        content: "Glissez et déposez vos fichiers ici";
+        font-size: 1.1rem;
+    }
+    div[data-testid="stFileUploaderDropzone"] div div span {
+        display: none;
+    }
+    
+    /* Traduction de la limite de taille */
+    div[data-testid="stFileUploaderDropzone"] div div small {
+        display: none;
+    }
+    div[data-testid="stFileUploaderDropzone"] div div::after {
+        content: "Limite de 200 Mo par fichier • PDF";
+        font-size: 0.8rem;
+        color: gray;
+        display: block;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -79,13 +108,12 @@ with tab1:
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
     st.header("2. Extraire les pièces signées")
-    # Instruction sur deux lignes avec un espacement (margin-bottom) entre elles
     st.markdown("""
         <p style='font-size: 0.9em; color: gray; margin-top: -15px;'>
         Déposer le pdf global signé par le.la directeur.rice de production ou post-production.
         </p>
         <p style='font-size: 0.9em; color: gray; margin-top: 5px;'>
-        Après téléchargement, les pdfs signés seront prêts à être encodés dans BOB.
+        Les pdfs signés seront prêts à être encodés.
         </p>
         """, unsafe_allow_html=True)
     
