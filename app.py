@@ -83,7 +83,7 @@ with st.sidebar:
     # Bloc 1
     with st.container(border=True):
         st.markdown("**🚀 1. Préparation**")
-        st.markdown("Déposez les PDFs validés depuis **'OK Laurie'**, générez et téléchargez le fichier unique.")
+        st.markdown("Déposez les PDFs validés depuis **'OK Laurie'**, générez et téléchargez le fichier unique sur votre ordinateur.")
     
     # Bloc 2
     with st.container(border=True):
