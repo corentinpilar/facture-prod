@@ -37,10 +37,18 @@ with tab1:
     files = st.file_uploader("Glissez les PDF à combiner", type="pdf", accept_multiple_files=True)
     
     if files:
+        # Affichage de la liste détaillée des fichiers chargés
+        st.markdown(f"**Liste des fichiers chargés ({len(files)}) :**")
+        fichiers_tries = sorted(files, key=lambda x: x.name)
+        
+        for idx, f in enumerate(fichiers_tries, 1):
+            st.text(f"📄 {idx}. {f.name}")
+        
+        st.markdown("---")
+        
         if st.button("🚀 Générer la fusion"):
             writer = PdfWriter()
             carte = []
-            fichiers_tries = sorted(files, key=lambda x: x.name)
             
             for f in fichiers_tries:
                 reader = PdfReader(f)
@@ -54,10 +62,8 @@ with tab1:
             pdf_out = io.BytesIO()
             writer.write(pdf_out)
             
-            # Nouvelle nomenclature : LFS - à signer - date - heure
             ts = datetime.now().strftime("%d-%m-%Y - %Hh%M")
             st.session_state.pdf_name = f"LFS - à signer - {ts}.pdf"
-            
             st.session_state.pdf_data = pdf_out.getvalue()
             st.session_state.prepret = True
             st.success("Fusion réussie !")
@@ -83,8 +89,6 @@ with tab2:
                     
                     zip_out = io.BytesIO()
                     current_page = 0
-                    
-                    # Nouvelle nomenclature : LFS - à encoder - date - heure
                     ts_now = datetime.now().strftime("%d-%m-%Y - %Hh%M")
                     
                     with zipfile.ZipFile(zip_out, "w") as zf:
