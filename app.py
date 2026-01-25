@@ -29,7 +29,7 @@ st.markdown("""
 
     /* RÉDUCTION DE L'ESPACE DANS LA SIDEBAR */
     section[data-testid="stSidebar"] div.stMarkdown {
-        line-height: 1.2;
+        line-height: 1.4;
     }
     section[data-testid="stSidebar"] hr {
         margin-top: 0.5rem !important;
