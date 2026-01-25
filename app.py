@@ -49,7 +49,7 @@ with st.sidebar:
     """)
     
     st.markdown("---")
-    st.markdown("### 📦 Étape 3 : Isoler pour BOB")
+    st.markdown("### 📦 Étape 3 : Isoler les pdfs pour l'encodage BOB")
     st.write("""
     1. Allez sur l'onglet **EXTRAIRE**.
     2. Déposez le PDF signé.
