@@ -98,7 +98,7 @@ with st.sidebar:
         st.markdown("<small>Utilisez Dropbox Sign Frakas pour faire signer le PDF unique.</small>", unsafe_allow_html=True)
     with st.container(border=True):
         st.markdown("**📦 Étape 3 : Split & BOB**")
-        st.markdown("<small>Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures.</small>", unsafe_allow_html=True)
+        st.markdown("<small>Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures pour l'encodage.</small>", unsafe_allow_html=True)
     st.markdown(" ")
     st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
 
