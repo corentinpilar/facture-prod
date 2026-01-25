@@ -99,7 +99,7 @@ with st.sidebar:
     # --- AJOUT DU CONTACT ---
     st.markdown("### 📞 Contact")
     st.info("**Vous avez des questions ou suggestion?**")
-    st.("Appelez-moi**")
+    st.info("Appelez-moi**")
     
     st.markdown(" ")
     st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
