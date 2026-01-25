@@ -94,7 +94,7 @@ with st.sidebar:
     # Bloc 3
     with st.container(border=True):
         st.markdown("**📦 3. Split & BOB**")
-        st.markdown("Onglet **EXTRAIRE**. Déposez le PDF signé. Le système sépare les factures pour l'encodage.")
+        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage.")
     
     st.markdown(" ")
     st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
