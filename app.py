@@ -90,7 +90,7 @@ with st.sidebar:
         st.markdown("Utilisez le compte **Dropbox Sign** Frakas pour faire signer le PDF unique.")
     
     with st.container(border=True):
-        st.markdown("**📦 3. Split & BOB**")
+        st.markdown("**📦 3. Split**")
         st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage dans BOB.")
     
     st.markdown("### 📞 Contact")
