@@ -139,4 +139,4 @@ with tab2:
                 st.error(f"Erreur : {e}")
 
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #555; font-size: 0.85em;'>© LE FAUX SOIR - PRODUCTION</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #555; font-size: 0.85em;'>© Copyright - Corentin Pilarczyk</div>", unsafe_allow_html=True)
