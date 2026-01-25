@@ -56,7 +56,7 @@ with st.sidebar:
         """)
     
     st.markdown("---")
-    st.caption("🎬 Version 2.0 - Le Faux Soir Production")
+    st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
