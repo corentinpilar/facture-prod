@@ -74,7 +74,6 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # Initialisation des états
-if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
 if 'uploader_key' not in st.session_state: st.session_state.uploader_key = 0
 
 # --- BARRE LATÉRALE ---
@@ -109,7 +108,6 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
 with tab1:
     st.markdown("### 📂 Fusionner pour signature")
     
-    # Utilisation d'une key dynamique pour pouvoir vider le widget
     files = st.file_uploader(
         "uploader_1", 
         type="pdf", 
@@ -127,33 +125,36 @@ with tab1:
         
         st.markdown(" ")
         col1, col2 = st.columns(2)
+        
         with col1:
-            if st.button("🚀 GÉNÉRER LE PDF", key="btn_gen", use_container_width=True, type="primary"):
-                writer = PdfWriter()
-                carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
-                for f in fichiers_tries: writer.append(f)
-                writer.add_metadata({"/StructureProd": json.dumps(carte)})
-                PDF_out = io.BytesIO()
-                writer.write(PDF_out)
-                st.session_state.PDF_data = PDF_out.getvalue()
-                st.session_state.PDF_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
-                st.success("Fusion réussie !")
+            # Création du PDF à la volée pour le download_button
+            writer = PdfWriter()
+            carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
+            for f in fichiers_tries: writer.append(f)
+            writer.add_metadata({"/StructureProd": json.dumps(carte)})
+            
+            PDF_out = io.BytesIO()
+            writer.write(PDF_out)
+            nom_fichier = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
+            
+            # Le bouton de génération devient directement un bouton de téléchargement
+            st.download_button(
+                label="🚀 GÉNÉRER & TÉLÉCHARGER",
+                data=PDF_out.getvalue(),
+                file_name=nom_fichier,
+                mime="application/pdf",
+                use_container_width=True,
+                type="primary"
+            )
         
         with col2:
             if st.button("🗑️ VIDER TOUT", key="btn_reset", use_container_width=True):
-                # On incrémente la clé pour forcer le widget à se réinitialiser
                 st.session_state.uploader_key += 1
-                st.session_state.PDF_data = None
                 st.rerun()
-
-    if st.session_state.PDF_data:
-        st.divider()
-        st.download_button("📥 TÉLÉCHARGER LE PDF POUR SIGNATURE", st.session_state.PDF_data, st.session_state.PDF_name, use_container_width=True)
 
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
     st.markdown("### ✂️ Découper le PDF signé")
-    # On peut aussi appliquer la key dynamique ici si tu veux vider l'onglet 2 avec le même bouton
     PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed", key=f"split_{st.session_state.uploader_key}")
     
     if PDF_signe:
