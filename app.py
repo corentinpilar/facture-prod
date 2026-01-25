@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-# 1. CONFIGURATION ET DESIGN "STUDIO"
+# 1. CONFIGURATION ET DESIGN
 st.set_page_config(page_title="LE FAUX SOIR - Production", page_icon="🎬", layout="centered")
 
 st.markdown("""
@@ -25,13 +25,41 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
+# Initialisation
 if 'pdf_data' not in st.session_state: st.session_state.pdf_data = None
 
-def reset_app():
-    st.session_state.pdf_data = None
-    st.rerun()
+# --- BARRE LATÉRALE : GUIDE D'UTILISATION ---
+with st.sidebar:
+    st.title("📖 Guide d'utilisation")
+    st.markdown("---")
+    
+    with st.expander("🚀 Étape 1 : Préparation", expanded=True):
+        st.write("""
+        1. Allez dans le dossier **'OK Laurie'**.
+        2. Glissez tous les PDF dans la zone rouge.
+        3. Cliquez sur **Générer**.
+        4. Téléchargez le PDF unique.
+        """)
+        
+    with st.expander("✍️ Étape 2 : Signature"):
+        st.write("""
+        1. Ouvrez votre compte **Dropbox Sign**.
+        2. Envoyez le PDF unique pour signature.
+        3. Une fois signé, téléchargez le document final depuis Dropbox.
+        """)
+        
+    with st.expander("📦 Étape 3 : Encodage BOB"):
+        st.write("""
+        1. Allez sur l'onglet **EXTRAIRE**.
+        2. Déposez le PDF signé.
+        3. Le système va séparer chaque facture et y joindre la preuve de signature.
+        4. Téléchargez l'archive pour **BOB**.
+        """)
+    
+    st.markdown("---")
+    st.caption("🎬 Version 2.0 - Le Faux Soir Production")
 
-# --- HEADER ---
+# --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
 st.markdown("<p style='font-size: 1.2em; color: #FF4B4B; margin-top: -20px; font-weight: bold;'>Gestionnaire de Production</p>", unsafe_allow_html=True)
 
@@ -62,7 +90,9 @@ with tab1:
                 st.session_state.pdf_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
                 st.success("Fusion réussie !")
         with col2:
-            if st.button("🗑️ VIDER TOUT", use_container_width=True): reset_app()
+            if st.button("🗑️ VIDER TOUT", use_container_width=True):
+                st.session_state.pdf_data = None
+                st.rerun()
 
     if st.session_state.pdf_data:
         st.download_button("📥 TÉLÉCHARGER LE PDF POUR SIGNATURE", st.session_state.pdf_data, st.session_state.pdf_name, use_container_width=True)
@@ -70,8 +100,6 @@ with tab1:
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
     st.subheader("2. Extraire pour encodage BOB")
-    st.markdown("<p style='color: gray; margin-top:-15px;'>Déposez ici le PDF global une fois signé sur Dropbox.</p>", unsafe_allow_html=True)
-    
     pdf_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
     if pdf_signe:
@@ -86,42 +114,26 @@ with tab2:
                     zip_out = io.BytesIO()
                     current_page = 0
                     
-                    # --- BARRE DE PROGRESSION ---
                     progress_bar = st.progress(0)
-                    status_text = st.empty()
                     total_items = len(carte)
                     
                     with zipfile.ZipFile(zip_out, "w") as zf:
                         for i, item in enumerate(carte):
-                            # Mise à jour de la barre
-                            percent_complete = (i + 1) / total_items
-                            progress_bar.progress(percent_complete)
-                            status_text.text(f"Traitement : {item['n']}")
-                            
+                            progress_bar.progress((i + 1) / total_items)
                             sw = PdfWriter()
                             for p in range(current_page, current_page + item["p"]):
                                 sw.add_page(reader.pages[p])
                             sw.add_page(last_page)
                             current_page += item["p"]
-                            
                             buf = io.BytesIO()
                             sw.write(buf)
                             zf.writestr(item["n"].replace(".pdf", " (signed).pdf"), buf.getvalue())
-                            time.sleep(0.05) # Petit délai pour rendre la barre visible si peu de fichiers
+                            time.sleep(0.05)
                     
-                    status_text.empty()
                     progress_bar.empty()
-
-                    # NOM DE L'ARCHIVE ET TÉLÉCHARGEMENT
                     nom_archive = f"LFS - à encoder - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
-                    
-                    st.success(f"✅ Extraction terminée : {total_items} documents prêts.")
-                    st.download_button(
-                        label=f"⬇️ TÉLÉCHARGER : {nom_archive}",
-                        data=zip_out.getvalue(),
-                        file_name=nom_archive,
-                        use_container_width=True
-                    )
+                    st.success(f"✅ {total_items} documents extraits avec succès.")
+                    st.download_button(f"⬇️ TÉLÉCHARGER : {nom_archive}", zip_out.getvalue(), nom_archive, use_container_width=True)
             except Exception as e:
                 st.error(f"Erreur : {e}")
 
