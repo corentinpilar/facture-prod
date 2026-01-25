@@ -15,16 +15,20 @@ st.markdown("### 🎬 LE FAUX SOIR - Pdf manager")
 @st.dialog("Action requise ✍🏻")
 def popup_signature(pdf_data, pdf_name):
     st.write(f"Le fichier **{pdf_name}** est prêt.")
-    st.info("Étape suivante : Envoyer le document à signer via Dropbox Sign.")
+    st.warning("Envoyer le document à signer via Dropbox Sign")
     
-    # Le bouton de téléchargement est à l'intérieur du pop-up
+    # On retire le paramètre on_click qui causait l'erreur
     st.download_button(
-        label="⬇️ Télécharger et continuer",
+        label="⬇️ Télécharger le document",
         data=pdf_data,
         file_name=pdf_name,
-        mime="application/pdf",
-        on_click=st.rerun # Ferme ou actualise après le clic
+        mime="application/pdf"
     )
+    st.caption("Une fois le téléchargement lancé, vous pouvez fermer cette fenêtre.")
+
+# Initialisation des variables de session si elles n'existent pas
+if 'prepret' not in st.session_state:
+    st.session_state.prepret = False
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 
@@ -56,9 +60,9 @@ with tab1:
             st.session_state.pdf_data = pdf_out.getvalue()
             st.session_state.pdf_name = f"DOC_A_SIGNER_{ts}.pdf"
             st.session_state.prepret = True
+            st.success("Fusion réussie !")
 
-    if st.session_state.get('prepret'):
-        st.success("Fusion réussie !")
+    if st.session_state.prepret:
         # Ce bouton déclenche le pop-up flou en arrière-plan
         if st.button("✅ Terminer et télécharger"):
             popup_signature(st.session_state.pdf_data, st.session_state.pdf_name)
