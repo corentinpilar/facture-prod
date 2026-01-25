@@ -53,7 +53,6 @@ if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
 # --- BARRE LATÉRALE : GUIDE D'UTILISATION FIXE ---
 with st.sidebar:
     st.title("📖 Guide")
-    st.markdown("---")
     
     st.markdown("### 🚀 Étape 1 : Préparation")
     st.write("""
@@ -63,14 +62,12 @@ with st.sidebar:
     4. Téléchargez le PDF unique.
     """)
     
-    st.markdown("---")
     st.markdown("### ✍️ Étape 2 : Signature")
     st.write("""
     1. Compte **Dropbox Sign** Frakas.
     2. Envoyez pour signature.
     """)
     
-    st.markdown("---")
     st.markdown("### 👾 Étape 3 : Split pour BOB")
     st.write("""
     1. Onglet **EXTRAIRE**.
