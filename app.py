@@ -120,7 +120,7 @@ with tab1:
         
         with col1:
             writer = PdfWriter()
-            # On garde le nom exact (Majuscules incluses)
+            # On enregistre le nom exact tel quel (MAJUSCULES préservées)
             carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
             for f in fichiers_tries: writer.append(f)
             writer.add_metadata({"/StructureProd": json.dumps(carte)})
@@ -170,12 +170,13 @@ with tab2:
                         buf = io.BytesIO()
                         sw.write(buf)
                         
-                        # NOMENCLATURE : On garde item["n"] tel quel (MAJUSCULES préservées)
+                        # NOMENCLATURE : Nom d'origine (MAJ) + (signed) en minuscule
                         nom_origine = item["n"]
-                        if nom_origine.upper().endswith('.PDF'):
-                            nom_final = nom_origine[:-4] + " (SIGNED).pdf"
+                        if nom_origine.lower().endswith('.pdf'):
+                            # On retire l'extension .pdf (peu importe sa casse) et on ajoute le suffixe
+                            nom_final = nom_origine[:-4] + " (signed).pdf"
                         else:
-                            nom_final = nom_origine + " (SIGNED).pdf"
+                            nom_final = nom_origine + " (signed).pdf"
                         
                         zf.writestr(nom_final, buf.getvalue())
                 
