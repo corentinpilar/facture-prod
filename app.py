@@ -17,7 +17,6 @@ def popup_signature(pdf_data, pdf_name):
     st.write(f"Le fichier **{pdf_name}** est prêt.")
     st.warning("Envoyer le document à signer via Dropbox Sign")
     
-    # On retire le paramètre on_click qui causait l'erreur
     st.download_button(
         label="⬇️ Télécharger le document",
         data=pdf_data,
@@ -26,7 +25,7 @@ def popup_signature(pdf_data, pdf_name):
     )
     st.caption("Une fois le téléchargement lancé, vous pouvez fermer cette fenêtre.")
 
-# Initialisation des variables de session si elles n'existent pas
+# Initialisation des variables de session
 if 'prepret' not in st.session_state:
     st.session_state.prepret = False
 
@@ -56,14 +55,12 @@ with tab1:
             writer.write(pdf_out)
             ts = datetime.now().strftime("%d-%m-%Y_%Hh%M")
             
-            # Stockage en session
             st.session_state.pdf_data = pdf_out.getvalue()
             st.session_state.pdf_name = f"DOC_A_SIGNER_{ts}.pdf"
             st.session_state.prepret = True
             st.success("Fusion réussie !")
 
     if st.session_state.prepret:
-        # Ce bouton déclenche le pop-up flou en arrière-plan
         if st.button("✅ Terminer et télécharger"):
             popup_signature(st.session_state.pdf_data, st.session_state.pdf_name)
 
@@ -108,5 +105,11 @@ with tab2:
             except Exception as e:
                 st.error(f"Erreur : {e}")
 
+# --- PIED DE PAGE ---
 st.markdown("---")
-st.caption("LE FAUX SOIR - Production")
+st.markdown(
+    "<div style='text-align: center; color: gray; font-size: 0.8em;'>"
+    "© Tous droits réservés - Corentin Pilarczyk"
+    "</div>", 
+    unsafe_allow_html=True
+)
