@@ -4,7 +4,7 @@ import io
 import zipfile
 import time
 from datetime import datetime
-from pyPDF import PDFReader, PDFWriter
+from pypdf import PdfReader, PdfWriter # Correction de la casse ici
 
 # 1. CONFIGURATION ET DESIGN
 st.set_page_config(page_title="© Le Faux Soir - PDF Manager", page_icon="🎬", layout="centered")
@@ -55,7 +55,7 @@ with st.sidebar:
     2. Déposez le PDF signé.
     3. Le système sépare les factures signées.
     4. Téléchargez l'archive sur votre ordinateur.
-    5. Encodez chaque pièce dans**BOB**
+    5. Encodez chaque pièce dans **BOB**.
     """)
     
     st.markdown("---")
@@ -70,7 +70,7 @@ tab1, tab2 = st.tabs(["➕ 1. PRÉPARER (Fusion)", "✂️ 2. EXTRAIRE (BOB)"])
 # --- ONGLET 1 : FUSION ---
 with tab1:
     st.subheader("1. Fusionner pour signature")
-    files = st.file_uploader("uploader_1", type="PDF", accept_multiple_files=True, label_visibility="collapsed")
+    files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
@@ -82,14 +82,14 @@ with tab1:
         col1, col2 = st.columns(2)
         with col1:
             if st.button("🚀 GÉNÉRER LE PDF", use_container_width=True, type="primary"):
-                writer = PDFWriter()
-                carte = [{"n": f.name, "p": len(PDFReader(f).pages)} for f in fichiers_tries]
+                writer = PdfWriter()
+                carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
                 for f in fichiers_tries: writer.append(f)
                 writer.add_metadata({"/StructureProd": json.dumps(carte)})
                 PDF_out = io.BytesIO()
                 writer.write(PDF_out)
                 st.session_state.PDF_data = PDF_out.getvalue()
-                st.session_state.PDF_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.PDF"
+                st.session_state.PDF_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
                 st.success("Fusion réussie !")
         with col2:
             if st.button("🗑️ VIDER TOUT", use_container_width=True):
@@ -102,12 +102,12 @@ with tab1:
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
     st.subheader("2. Extraire pour encodage BOB")
-    PDF_signe = st.file_uploader("uploader_2", type="PDF", label_visibility="collapsed")
+    PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
     if PDF_signe:
         if st.button("⚡ LANCER L'EXTRACTION", use_container_width=True, type="primary"):
             try:
-                reader = PDFReader(PDF_signe)
+                reader = PdfReader(PDF_signe)
                 if "/StructureProd" not in reader.metadata:
                     st.error("Erreur : Ce PDF ne provient pas de l'étape 1.")
                 else:
@@ -122,14 +122,16 @@ with tab2:
                     with zipfile.ZipFile(zip_out, "w") as zf:
                         for i, item in enumerate(carte):
                             progress_bar.progress((i + 1) / total_items)
-                            sw = PDFWriter()
+                            sw = PdfWriter()
                             for p in range(current_page, current_page + item["p"]):
                                 sw.add_page(reader.pages[p])
                             sw.add_page(last_page)
                             current_page += item["p"]
                             buf = io.BytesIO()
                             sw.write(buf)
-                            zf.writestr(item["n"].replace(".PDF", " (signed).PDF"), buf.getvalue())
+                            # Gestion de l'extension peu importe la casse d'origine
+                            nom_final = item["n"].lower().replace(".pdf", " (signed).pdf")
+                            zf.writestr(nom_final, buf.getvalue())
                             time.sleep(0.05)
                     
                     progress_bar.empty()
