@@ -53,10 +53,12 @@ with tab1:
             
             pdf_out = io.BytesIO()
             writer.write(pdf_out)
-            ts = datetime.now().strftime("%d-%m-%Y_%Hh%M")
+            
+            # Nouvelle nomenclature : LFS - à signer - date - heure
+            ts = datetime.now().strftime("%d-%m-%Y - %Hh%M")
+            st.session_state.pdf_name = f"LFS - à signer - {ts}.pdf"
             
             st.session_state.pdf_data = pdf_out.getvalue()
-            st.session_state.pdf_name = f"DOC_A_SIGNER_{ts}.pdf"
             st.session_state.prepret = True
             st.success("Fusion réussie !")
 
@@ -81,7 +83,9 @@ with tab2:
                     
                     zip_out = io.BytesIO()
                     current_page = 0
-                    ts_now = datetime.now().strftime("%d-%m-%Y_%Hh%M")
+                    
+                    # Nouvelle nomenclature : LFS - à encoder - date - heure
+                    ts_now = datetime.now().strftime("%d-%m-%Y - %Hh%M")
                     
                     with zipfile.ZipFile(zip_out, "w") as zf:
                         for item in carte:
@@ -100,7 +104,7 @@ with tab2:
                     st.download_button(
                         label="⬇️ Télécharger l'archive ZIP", 
                         data=zip_out.getvalue(), 
-                        file_name=f"FACTURES_SIGNEES_{ts_now}.zip"
+                        file_name=f"LFS - à encoder - {ts_now}.zip"
                     )
             except Exception as e:
                 st.error(f"Erreur : {e}")
