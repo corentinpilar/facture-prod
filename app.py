@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import io
 import zipfile
+import time
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
@@ -21,9 +22,11 @@ st.markdown("""
         content: "🎬 Déposez les documents ici";
         display: block; font-size: 1.2rem; font-weight: bold; color: #FAFAFA;
     }
-    div[data-testid="stFileUploaderDropzone"] section > div > div::after {
-        content: "PDF uniquement • dossier 'OK Laurie'";
-        display: block; font-size: 0.85rem; color: #808495; margin-top: 5px;
+    /* Style pour le gros pouce */
+    .big-thumb {
+        font-size: 100px;
+        text-align: center;
+        margin-top: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -38,7 +41,6 @@ def reset_app():
 st.title("🎬 LE FAUX SOIR")
 st.markdown("<p style='font-size: 1.2em; color: #FF4B4B; margin-top: -20px; font-weight: bold;'>Gestionnaire de Production</p>", unsafe_allow_html=True)
 
-# --- NAVIGATION ---
 tab1, tab2 = st.tabs(["➕ 1. PRÉPARER (Fusion)", "✂️ 2. EXTRAIRE (BOB)"])
 
 # --- ONGLET 1 : FUSION ---
@@ -49,7 +51,6 @@ with tab1:
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
         st.divider()
-        
         with st.expander(f"👁️ Liste des fichiers ({len(files)})", expanded=True):
             for idx, f in enumerate(fichiers_tries, 1):
                 st.markdown(f"✅ **{idx}.** {f.name}")
@@ -58,38 +59,24 @@ with tab1:
         with col1:
             if st.button("🚀 GÉNÉRER LE PDF", use_container_width=True, type="primary"):
                 writer = PdfWriter()
-                carte = []
-                for f in fichiers_tries:
-                    reader = PdfReader(f)
-                    writer.append(f)
-                    carte.append({"n": f.name, "p": len(reader.pages)})
-                
+                carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
+                for f in fichiers_tries: writer.append(f)
                 writer.add_metadata({"/StructureProd": json.dumps(carte)})
                 pdf_out = io.BytesIO()
                 writer.write(pdf_out)
-                
                 st.session_state.pdf_data = pdf_out.getvalue()
                 st.session_state.pdf_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
                 st.success("Fusion réussie !")
-        
         with col2:
-            if st.button("🗑️ VIDER TOUT", use_container_width=True):
-                reset_app()
+            if st.button("🗑️ VIDER TOUT", use_container_width=True): reset_app()
 
     if st.session_state.pdf_data:
-        st.divider()
-        st.download_button(
-            label="📥 TÉLÉCHARGER LE PDF POUR SIGNATURE",
-            data=st.session_state.pdf_data,
-            file_name=st.session_state.pdf_name,
-            mime="application/pdf",
-            use_container_width=True
-        )
+        st.download_button("📥 TÉLÉCHARGER LE PDF POUR SIGNATURE", st.session_state.pdf_data, st.session_state.pdf_name, use_container_width=True)
 
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
     st.subheader("2. Extraire pour encodage BOB")
-    st.markdown("<p style='color: gray; margin-top:-15px;'>Déposez ici le PDF global une fois qu'il a été signé sur Dropbox.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: gray; margin-top:-15px;'>Déposez ici le PDF global une fois signé.</p>", unsafe_allow_html=True)
     
     pdf_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
@@ -110,24 +97,30 @@ with tab2:
                             sw = PdfWriter()
                             for p in range(current_page, current_page + item["p"]):
                                 sw.add_page(reader.pages[p])
-                            sw.add_page(last_page) # Ajout page signature
+                            sw.add_page(last_page)
                             current_page += item["p"]
                             buf = io.BytesIO()
                             sw.write(buf)
                             zf.writestr(item["n"].replace(".pdf", " (signed).pdf"), buf.getvalue())
                     
-                    # Nomenclature demandée : LFS - à encoder + date et heure
+                    # ANIMATION POUCE LEVÉ
+                    thumb_placeholder = st.empty()
+                    thumb_placeholder.markdown('<div class="big-thumb">👍</div>', unsafe_allow_html=True)
+                    time.sleep(1.5) # Durée de l'animation
+                    thumb_placeholder.empty()
+
+                    # NOM DE L'ARCHIVE
                     nom_archive = f"LFS - à encoder - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
                     
-                    st.balloons()
                     st.download_button(
                         label=f"⬇️ TÉLÉCHARGER : {nom_archive}",
                         data=zip_out.getvalue(),
                         file_name=nom_archive,
                         use_container_width=True
                     )
+                    st.info("Extraction terminée avec succès.")
             except Exception as e:
                 st.error(f"Erreur : {e}")
 
 st.markdown("---")
-st.markdown("<div style='text-align: center; color: #555; font-size: 0.85em;'>🎬 LE FAUX SOIR - PRODUCTION</div>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #555; font-size: 0.85em;'>© LE FAUX SOIR - PRODUCTION</div>", unsafe_allow_html=True)
