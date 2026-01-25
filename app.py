@@ -8,16 +8,17 @@ from pypdf import PdfReader, PdfWriter
 # 1. CONFIGURATION ET FORCE DE L'AFFICHAGE
 st.set_page_config(page_title="LE FAUX SOIR - Pdf manager", page_icon="🎬")
 
-# Ce bloc CSS force la liste à être entière et supprime la pagination native de Streamlit
+# Bloc CSS pour masquer la pagination native et styliser la liste
 st.markdown("""
     <style>
     [data-testid="stFileUploaderFileList"] {
         display: none !important;
     }
-    .file-list-item {
-        padding: 5px;
-        border-bottom: 1px solid #eee;
-        font-family: monospace;
+    .file-list-container {
+        border: 1px solid #e6e9ef;
+        border-radius: 5px;
+        padding: 10px;
+        background-color: #f9f9f9;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -38,7 +39,6 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 with tab1:
     st.header("1. Préparer le PDF unique")
     
-    # On vide le label pour plus de clarté
     files = st.file_uploader("", type="pdf", accept_multiple_files=True)
     
     if files:
@@ -46,10 +46,13 @@ with tab1:
         
         st.write(f"**Documents chargés ({len(files)}) :**")
         
-        # LISTE PERSONNALISÉE : Elle s'affiche TOUJOURS en entier
+        # LISTE PERSONNALISÉE AVEC VALIDATION ✅
         with st.container(border=True):
             for idx, f in enumerate(fichiers_tries, 1):
-                st.markdown(f"**{idx}.** {f.name}")
+                # On affiche l'émoji ✅ pour confirmer l'upload
+                st.markdown(f"✅ **{idx}.** {f.name}")
+        
+        st.markdown("---")
         
         if st.button("🚀 Générer la fusion"):
             writer = PdfWriter()
@@ -79,6 +82,9 @@ with tab2:
     pdf_signe = st.file_uploader("Fichier signé", type="pdf", label_visibility="collapsed")
     
     if pdf_signe:
+        # Confirmation d'upload pour le fichier signé aussi
+        st.markdown(f"✅ **Fichier prêt :** {pdf_signe.name}")
+        
         if st.button("⚡ Extraire les factures"):
             try:
                 reader = PdfReader(pdf_signe)
