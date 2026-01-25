@@ -34,17 +34,20 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 # --- ONGLET 1 : FUSION ---
 with tab1:
     st.header("1. Préparer le PDF unique")
-    files = st.file_uploader("Glissez les PDF à combiner", type="pdf", accept_multiple_files=True)
+    
+    # On utilise label_visibility pour épurer
+    files = st.file_uploader("Glissez les PDF à combiner", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
     
     if files:
-        # Affichage de la liste détaillée des fichiers chargés
-        st.markdown(f"**Liste des fichiers chargés ({len(files)}) :**")
+        # On force l'affichage de tous les fichiers dans une zone dédiée sans pagination
+        st.write(f"**Documents chargés ({len(files)}) :**")
+        
         fichiers_tries = sorted(files, key=lambda x: x.name)
         
-        for idx, f in enumerate(fichiers_tries, 1):
-            st.text(f"📄 {idx}. {f.name}")
-        
-        st.markdown("---")
+        # Création d'une zone délimitée pour la liste
+        with st.container(border=True):
+            for idx, f in enumerate(fichiers_tries, 1):
+                st.markdown(f"**{idx}.** {f.name}")
         
         if st.button("🚀 Générer la fusion"):
             writer = PdfWriter()
@@ -75,7 +78,7 @@ with tab1:
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
     st.header("2. Extraire les pièces signées")
-    pdf_signe = st.file_uploader("Déposez le PDF signé ici", type="pdf")
+    pdf_signe = st.file_uploader("Déposez le PDF signé ici", type="pdf", label_visibility="collapsed")
     
     if pdf_signe:
         if st.button("⚡ Extraire les factures"):
