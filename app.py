@@ -60,7 +60,7 @@ with st.sidebar:
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
-st.markdown("<p style='font-size: 1.2em; color: #FF4B4B; margin-top: -20px; font-weight: bold;'>Gestionnaire de Production</p>", unsafe_allow_html=True)
+st.markdown("<p style='font-size: 1.2em; color: #FF4B4B; margin-top: -20px; font-weight: bold;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
 tab1, tab2 = st.tabs(["➕ 1. PRÉPARER (Fusion)", "✂️ 2. EXTRAIRE (BOB)"])
 
