@@ -131,7 +131,7 @@ with tab1:
 
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
-    st.subheader("2. Extraire les documents")
+    st.subheader("2. Extraction des pdfs.")
     st.markdown("""
         <p style='color: gray; font-size: 0.95em;'>
         Déposez le PDF global signé par la direction de production/post-production.<br>
