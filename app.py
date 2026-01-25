@@ -6,7 +6,7 @@ import time
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-# 1. CONFIGURATION ET DESIGN
+# 1. CONFIGURATION ET DESIGN "STUDIO"
 st.set_page_config(page_title="LE FAUX SOIR - Production", page_icon="🎬", layout="centered")
 
 st.markdown("""
@@ -21,12 +21,6 @@ st.markdown("""
     div[data-testid="stFileUploaderDropzone"] section > div > div::before {
         content: "🎬 Déposez les documents ici";
         display: block; font-size: 1.2rem; font-weight: bold; color: #FAFAFA;
-    }
-    /* Style pour le gros pouce */
-    .big-thumb {
-        font-size: 100px;
-        text-align: center;
-        margin-top: 20px;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -76,7 +70,7 @@ with tab1:
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
     st.subheader("2. Extraire pour encodage BOB")
-    st.markdown("<p style='color: gray; margin-top:-15px;'>Déposez ici le PDF global une fois signé.</p>", unsafe_allow_html=True)
+    st.markdown("<p style='color: gray; margin-top:-15px;'>Déposez ici le PDF global une fois signé sur Dropbox.</p>", unsafe_allow_html=True)
     
     pdf_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
@@ -92,33 +86,42 @@ with tab2:
                     zip_out = io.BytesIO()
                     current_page = 0
                     
+                    # --- BARRE DE PROGRESSION ---
+                    progress_bar = st.progress(0)
+                    status_text = st.empty()
+                    total_items = len(carte)
+                    
                     with zipfile.ZipFile(zip_out, "w") as zf:
-                        for item in carte:
+                        for i, item in enumerate(carte):
+                            # Mise à jour de la barre
+                            percent_complete = (i + 1) / total_items
+                            progress_bar.progress(percent_complete)
+                            status_text.text(f"Traitement : {item['n']}")
+                            
                             sw = PdfWriter()
                             for p in range(current_page, current_page + item["p"]):
                                 sw.add_page(reader.pages[p])
                             sw.add_page(last_page)
                             current_page += item["p"]
+                            
                             buf = io.BytesIO()
                             sw.write(buf)
                             zf.writestr(item["n"].replace(".pdf", " (signed).pdf"), buf.getvalue())
+                            time.sleep(0.05) # Petit délai pour rendre la barre visible si peu de fichiers
                     
-                    # ANIMATION POUCE LEVÉ
-                    thumb_placeholder = st.empty()
-                    thumb_placeholder.markdown('<div class="big-thumb">👍</div>', unsafe_allow_html=True)
-                    time.sleep(1.5) # Durée de l'animation
-                    thumb_placeholder.empty()
+                    status_text.empty()
+                    progress_bar.empty()
 
-                    # NOM DE L'ARCHIVE
+                    # NOM DE L'ARCHIVE ET TÉLÉCHARGEMENT
                     nom_archive = f"LFS - à encoder - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
                     
+                    st.success(f"✅ Extraction terminée : {total_items} documents prêts.")
                     st.download_button(
                         label=f"⬇️ TÉLÉCHARGER : {nom_archive}",
                         data=zip_out.getvalue(),
                         file_name=nom_archive,
                         use_container_width=True
                     )
-                    st.info("Extraction terminée avec succès.")
             except Exception as e:
                 st.error(f"Erreur : {e}")
 
