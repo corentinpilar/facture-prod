@@ -107,7 +107,7 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
 
 # --- ONGLET 1 : FUSION ---
 with tab1:
-    st.markdown("### 📄 Fusionner pour signature")
+    st.markdown("### 📂 Fusionner pour signature")
     files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
     
     if files:
