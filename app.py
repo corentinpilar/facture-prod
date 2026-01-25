@@ -47,7 +47,7 @@ with st.sidebar:
         2. Envoyez le PDF unique pour signature.
         """)
         
-    with st.expander("📦 Étape 3 : Encodage BOB"):
+    with st.expander("📦 Étape 3 : Isoler les pdfs pour l'encodage"):
         st.write("""
         1. Allez sur l'onglet **EXTRAIRE**.
         2. Déposez le PDF signé.
