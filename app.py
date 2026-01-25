@@ -39,17 +39,14 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER (Fusion)", "✂️ EXTRAIRE (Signature)"])
 # --- ONGLET 1 : FUSION ---
 with tab1:
     st.header("1. Préparer le PDF unique")
-    # Ajout de la consigne spécifique pour Laurie
-    st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Ajouter les pdfs qui sont placés dans le dossier \"OK Laurie\"</p>", unsafe_allow_html=True)
+    st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Ajouter les pdfs qui sont placés dans \"OK Laurie\"</p>", unsafe_allow_html=True)
     
     files = st.file_uploader("", type="pdf", accept_multiple_files=True)
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
-        
         st.write(f"**Documents chargés ({len(files)}) :**")
         
-        # LISTE PERSONNALISÉE AVEC VALIDATION ✅
         with st.container(border=True):
             for idx, f in enumerate(fichiers_tries, 1):
                 st.markdown(f"✅ **{idx}.** {f.name}")
@@ -69,7 +66,6 @@ with tab1:
             pdf_out = io.BytesIO()
             writer.write(pdf_out)
             
-            # Nomenclature demandée : LFS - à signer - date - heure
             ts = datetime.now().strftime("%d-%m-%Y - %Hh%M")
             st.session_state.pdf_name = f"LFS - à signer - {ts}.pdf"
             st.session_state.pdf_data = pdf_out.getvalue()
@@ -83,6 +79,9 @@ with tab1:
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
     st.header("2. Extraire les pièces signées")
+    # Ajout de la consigne pour l'extraction
+    st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Déposer le pdf global signé par le.la directeur.rice de production ou post-production. Les pdfs signés seront prêts à être encodés.</p>", unsafe_allow_html=True)
+    
     pdf_signe = st.file_uploader("Fichier signé", type="pdf", label_visibility="collapsed")
     
     if pdf_signe:
@@ -98,7 +97,6 @@ with tab2:
                     last_page = reader.pages[-1]
                     zip_out = io.BytesIO()
                     
-                    # Nomenclature demandée : LFS - à encoder - date - heure
                     ts_now = datetime.now().strftime("%d-%m-%Y - %Hh%M")
                     
                     current_page = 0
