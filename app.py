@@ -43,17 +43,16 @@ with st.sidebar:
         
     with st.expander("✍️ Étape 2 : Signature"):
         st.write("""
-        1. Ouvrez votre compte **Dropbox Sign**.
+        1. Ouvrez le compte **Dropbox Sign** Frakas.
         2. Envoyez le PDF unique pour signature.
-        3. Une fois signé, téléchargez le document final depuis Dropbox.
         """)
         
     with st.expander("📦 Étape 3 : Encodage BOB"):
         st.write("""
         1. Allez sur l'onglet **EXTRAIRE**.
         2. Déposez le PDF signé.
-        3. Le système va séparer chaque facture et y joindre la preuve de signature.
-        4. Téléchargez l'archive pour **BOB**.
+        3. Le système va séparer chaque facture et y joindre la preuve de signature DropBox.
+        4. Téléchargez l'archive pour encoder chaque facture signée dans **BOB**.
         """)
     
     st.markdown("---")
