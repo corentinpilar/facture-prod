@@ -5,7 +5,7 @@ import zipfile
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
-# 1. CONFIGURATION ET TRADUCTION CSS
+# 1. CONFIGURATION ET TRADUCTION FORCEE
 st.set_page_config(page_title="LE FAUX SOIR - Pdf manager", page_icon="🎬")
 
 st.markdown("""
@@ -15,39 +15,45 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Traduction du bouton 'Browse files' */
-    section[data-testid="stFileUploader"] label button {
-        display: none;
+    /* Ciblage large pour traduire le bouton et le texte de dépôt */
+    div[data-testid="stFileUploaderDropzone"] button {
+        display: none !important;
     }
-    section[data-testid="stFileUploader"] label::after {
+    
+    div[data-testid="stFileUploaderDropzone"]::after {
         content: "Parcourir les fichiers";
         display: inline-block;
         background-color: #262730;
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        cursor: pointer;
+        padding: 8px 16px;
+        border-radius: 8px;
         border: 1px solid rgba(255, 255, 255, 0.2);
+        position: absolute;
+        right: 20px;
+        top: 25px;
     }
 
-    /* Traduction du texte 'Drag and drop' */
-    div[data-testid="stFileUploaderDropzone"] div div::before {
-        content: "Glissez et déposez vos fichiers ici";
-        font-size: 1.1rem;
+    div[data-testid="stFileUploaderDropzone"] section > div > div > span {
+        display: none !important;
     }
-    div[data-testid="stFileUploaderDropzone"] div div span {
-        display: none;
+
+    div[data-testid="stFileUploaderDropzone"] section > div > div::before {
+        content: "Glissez et déposez vos fichiers ici";
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 400;
+        margin-bottom: 5px;
     }
     
-    /* Traduction de la limite de taille */
-    div[data-testid="stFileUploaderDropzone"] div div small {
-        display: none;
+    div[data-testid="stFileUploaderDropzone"] section > div > div > small {
+        display: none !important;
     }
-    div[data-testid="stFileUploaderDropzone"] div div::after {
+
+    div[data-testid="stFileUploaderDropzone"] section > div > div::after {
         content: "Limite de 200 Mo par fichier • PDF";
-        font-size: 0.8rem;
-        color: gray;
         display: block;
+        font-size: 0.8rem;
+        color: #808495;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -70,7 +76,7 @@ with tab1:
     st.header("1. Préparer le PDF unique")
     st.markdown("<p style='font-size: 0.9em; color: gray; margin-top: -15px;'>Ajouter les pdfs qui sont placés dans \"OK Laurie\"</p>", unsafe_allow_html=True)
     
-    files = st.file_uploader("", type="pdf", accept_multiple_files=True)
+    files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
@@ -117,7 +123,7 @@ with tab2:
         </p>
         """, unsafe_allow_html=True)
     
-    pdf_signe = st.file_uploader("Fichier signé", type="pdf", label_visibility="collapsed")
+    pdf_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
     if pdf_signe:
         st.markdown(f"✅ **Fichier prêt :** {pdf_signe.name}")
@@ -149,6 +155,5 @@ with tab2:
             except Exception as e:
                 st.error(f"Erreur : {e}")
 
-# --- PIED DE PAGE ---
 st.markdown("---")
 st.markdown("<div style='text-align: center; color: gray; font-size: 0.8em;'>© Tous droits réservés - Corentin Pilarczyk</div>", unsafe_allow_html=True)
