@@ -79,10 +79,12 @@ with tab1:
 # --- ONGLET 2 : DECOUPAGE ---
 with tab2:
     st.header("2. Extraire les pièces signées")
-    # Instruction sur deux lignes comme demandé
+    # Instruction sur deux lignes avec un espacement (margin-bottom) entre elles
     st.markdown("""
-        <p style='font-size: 0.9em; color: gray; margin-top: -15px; line-height: 1.2;'>
-        Déposer le pdf global signé par le.la directeur.rice de production ou post-production.<br>
+        <p style='font-size: 0.9em; color: gray; margin-top: -15px;'>
+        Déposer le pdf global signé par le.la directeur.rice de production ou post-production.
+        </p>
+        <p style='font-size: 0.9em; color: gray; margin-top: 5px;'>
         Les pdfs signés seront prêts à être encodés.
         </p>
         """, unsafe_allow_html=True)
