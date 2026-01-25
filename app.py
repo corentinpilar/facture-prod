@@ -14,7 +14,7 @@ st.markdown("""
     /* Masquer la liste de fichiers par défaut */
     [data-testid="stFileUploaderFileList"] { display: none !important; }
     
-    /* Bouton personnalisé */
+    /* Bouton personnalisé zone de dépôt */
     div[data-testid="stFileUploaderDropzone"]::after {
         content: "📁 Parcourir les fichiers";
         display: inline-block; background-color: #FF4B4B; color: white;
@@ -27,22 +27,14 @@ st.markdown("""
         display: block; font-size: 1.2rem; font-weight: bold; color: #FAFAFA;
     }
 
-    /* RÉDUCTION DE L'ESPACE DANS LA SIDEBAR */
-    section[data-testid="stSidebar"] div.stMarkdown {
-        line-height: 1.4;
+    /* Ajustements Sidebar */
+    [data-testid="stSidebar"] {
+        background-color: #111111;
     }
-    section[data-testid="stSidebar"] hr {
-        margin-top: 0.5rem !important;
-        margin-bottom: 0.5rem !important;
-    }
-    section[data-testid="stSidebar"] h3 {
-        margin-top: -10px !important;
-        padding-top: 0 !important;
-        font-size: 1.1rem !important;
-    }
-    section[data-testid="stSidebar"] p {
-        margin-bottom: 5px !important;
-        font-size: 0.9rem !important;
+    /* Réduction des marges entre les blocs du guide */
+    [data-testid="stVerticalBlock"] > div {
+        padding-top: 0.1rem !important;
+        padding-bottom: 0.1rem !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -50,34 +42,26 @@ st.markdown("""
 # Initialisation
 if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
 
-# --- BARRE LATÉRALE : GUIDE D'UTILISATION FIXE ---
+# --- BARRE LATÉRALE : GUIDE D'UTILISATION (SANS LIGNES, AVEC BLOCS) ---
 with st.sidebar:
     st.title("📖 Guide")
     
-    st.markdown("### 🚀 Étape 1 : Préparation")
-    st.write("""
-    1. Dossier **'OK Laurie'**.
-    2. Glissez les PDFs validés.
-    3. Cliquez sur **Générer**.
-    4. Téléchargez le PDF unique.
-    """)
+    # Étape 1
+    with st.container(border=True):
+        st.markdown("**🚀 Étape 1 : Préparation**")
+        st.caption("Dossier 'OK Laurie'. Déposez les PDFs, générez et téléchargez le fichier unique.")
     
-    st.markdown("### ✍️ Étape 2 : Signature")
-    st.write("""
-    1. Compte **Dropbox Sign** Frakas.
-    2. Envoyez pour signature.
-    """)
+    # Étape 2
+    with st.container(border=True):
+        st.markdown("**✍️ Étape 2 : Signature**")
+        st.caption("Utilisez Dropbox Sign Frakas pour faire signer le PDF unique.")
     
-    st.markdown("### 👾 Étape 3 : Split pour BOB")
-    st.write("""
-    1. Onglet **EXTRAIRE**.
-    2. Déposez le PDF signé.
-    3. Système sépare les factures.
-    4. Téléchargez l'archive.
-    5. Encodez dans **BOB**.
-    """)
+    # Étape 3
+    with st.container(border=True):
+        st.markdown("**📦 Étape 3 : Split & BOB**")
+        st.caption("Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures pour BOB.")
     
-    st.markdown("---")
+    st.markdown(" ")
     st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
 
 # --- CONTENU PRINCIPAL ---
@@ -154,7 +138,7 @@ with tab2:
                     
                     progress_bar.empty()
                     nom_archive = f"LFS - à encoder - {datetime.now().strftime('%d-%m-%Y_%Hh%M')}.zip"
-                    st.success(f"✅ {total_items} documents extraits avec succès.")
+                    st.success(f"✅ {total_items} documents extraits.")
                     st.download_button(f"⬇️ TÉLÉCHARGER : {nom_archive}", zip_out.getvalue(), nom_archive, use_container_width=True)
             except Exception as e:
                 st.error(f"Erreur : {e}")
