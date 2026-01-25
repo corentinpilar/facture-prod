@@ -73,34 +73,28 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Initialisation
+# Initialisation des états
 if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
+if 'uploader_key' not in st.session_state: st.session_state.uploader_key = 0
 
-# --- BARRE LATÉRALE : GUIDE FIXE (NON RÉTRACTABLE) ---
+# --- BARRE LATÉRALE ---
 with st.sidebar:
     st.title("📖 Guide")
     
-    # Bloc 1
     with st.container(border=True):
         st.markdown("**🚀 1. Préparation**")
-        st.markdown("Déposez les PDFs validés depuis **'OK Laurie'**, générez et téléchargez le fichier unique sur votre ordinateur.")
+        st.markdown("Déposez les PDFs validés depuis **'OK Laurie'**, générez et téléchargez le fichier unique.")
     
-    # Bloc 2
     with st.container(border=True):
         st.markdown("**✍️ 2. Signature**")
         st.markdown("Utilisez le compte **Dropbox Sign** Frakas pour faire signer le PDF unique.")
     
-    # Bloc 3
     with st.container(border=True):
         st.markdown("**📦 3. Split & BOB**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage dans BOB.")
+        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures.")
     
-    # --- AJOUT DU CONTACT ---
     st.markdown("### 📞 Contact")
-    # Remplace ton_email@exemple.com par ton adresse réelle
-    st.info("""
-    **Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)  
-    """)
+    st.info("**Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)")
     
     st.markdown(" ")
     st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
@@ -114,7 +108,15 @@ tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
 # --- ONGLET 1 : FUSION ---
 with tab1:
     st.markdown("### 📂 Fusionner pour signature")
-    files = st.file_uploader("uploader_1", type="pdf", accept_multiple_files=True, label_visibility="collapsed")
+    
+    # Utilisation d'une key dynamique pour pouvoir vider le widget
+    files = st.file_uploader(
+        "uploader_1", 
+        type="pdf", 
+        accept_multiple_files=True, 
+        label_visibility="collapsed",
+        key=f"uploader_{st.session_state.uploader_key}"
+    )
     
     if files:
         fichiers_tries = sorted(files, key=lambda x: x.name)
@@ -136,8 +138,11 @@ with tab1:
                 st.session_state.PDF_data = PDF_out.getvalue()
                 st.session_state.PDF_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
                 st.success("Fusion réussie !")
+        
         with col2:
             if st.button("🗑️ VIDER TOUT", key="btn_reset", use_container_width=True):
+                # On incrémente la clé pour forcer le widget à se réinitialiser
+                st.session_state.uploader_key += 1
                 st.session_state.PDF_data = None
                 st.rerun()
 
@@ -148,7 +153,8 @@ with tab1:
 # --- ONGLET 2 : EXTRACTION ---
 with tab2:
     st.markdown("### ✂️ Découper le PDF signé")
-    PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
+    # On peut aussi appliquer la key dynamique ici si tu veux vider l'onglet 2 avec le même bouton
+    PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed", key=f"split_{st.session_state.uploader_key}")
     
     if PDF_signe:
         if st.button("⚡ LANCER L'EXTRACTION", key="btn_extract", use_container_width=True, type="primary"):
