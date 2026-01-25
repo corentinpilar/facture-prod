@@ -55,7 +55,6 @@ st.markdown("""
         [data-testid="stSidebar"] { background-color: #111111 !important; }
     }
 
-    /* Force la couleur du texte pour éviter le gris sur gris */
     [data-testid="stSidebar"] .stMarkdown p {
         color: #31333F !important;
         line-height: 1.4 !important;
@@ -98,8 +97,11 @@ with st.sidebar:
     
     # --- AJOUT DU CONTACT ---
     st.markdown("### 📞 Contact")
-    st.info("**Vous avez des questions ou suggestion?**")
-    st.info("Appelez-moi**")
+    # Remplace ton_email@exemple.com par ton adresse réelle
+    st.info("""
+    **Une question ou suggestion ?** [📩 Cliquez ici pour m'écrire](mailto:ton_email@exemple.com)  
+    ou appelez-moi.
+    """)
     
     st.markdown(" ")
     st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
