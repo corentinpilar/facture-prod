@@ -27,10 +27,18 @@ st.markdown("""
         display: block; font-size: 1.2rem; font-weight: bold; color: #FAFAFA;
     }
 
-    /* Ajustements Sidebar */
-    [data-testid="stSidebar"] {
-        background-color: #111111;
+    /* FIX COULEUR TEXTE SIDEBAR (Compatibilité Thème Clair/Sombre) */
+    [data-testid="stSidebar"] .stMarkdown p {
+        color: #31333F !important; /* Couleur par défaut lisible */
     }
+    
+    /* Si l'utilisateur est en thème sombre, on adapte */
+    @media (prefers-color-scheme: dark) {
+        [data-testid="stSidebar"] .stMarkdown p {
+            color: #FAFAFA !important;
+        }
+    }
+
     /* Réduction des marges entre les blocs du guide */
     [data-testid="stVerticalBlock"] > div {
         padding-top: 0.1rem !important;
@@ -42,27 +50,27 @@ st.markdown("""
 # Initialisation
 if 'PDF_data' not in st.session_state: st.session_state.PDF_data = None
 
-# --- BARRE LATÉRALE : GUIDE D'UTILISATION (SANS LIGNES, AVEC BLOCS) ---
+# --- BARRE LATÉRALE : GUIDE D'UTILISATION (LISIBILITÉ FORCÉE) ---
 with st.sidebar:
     st.title("📖 Guide")
     
     # Étape 1
     with st.container(border=True):
         st.markdown("**🚀 Étape 1 : Préparation**")
-        st.caption("Dossier 'OK Laurie'. Déposez les PDFs, générez et téléchargez le fichier unique.")
+        st.markdown("<small>Dossier 'OK Laurie'. Déposez les PDFs, générez et téléchargez le fichier unique.</small>", unsafe_allow_html=True)
     
     # Étape 2
     with st.container(border=True):
         st.markdown("**✍️ Étape 2 : Signature**")
-        st.caption("Utilisez Dropbox Sign Frakas pour faire signer le PDF unique.")
+        st.markdown("<small>Utilisez Dropbox Sign Frakas pour faire signer le PDF unique.</small>", unsafe_allow_html=True)
     
     # Étape 3
     with st.container(border=True):
         st.markdown("**📦 Étape 3 : Split & BOB**")
-        st.caption("Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures pour BOB.")
+        st.markdown("<small>Onglet EXTRAIRE. Déposez le PDF signé. Le système sépare les factures pour BOB.</small>", unsafe_allow_html=True)
     
     st.markdown(" ")
-    st.caption("LE FAUX SOIR - FRAKAS PRODUCTIONS")
+    st.markdown("<p style='font-size: 0.8em; opacity: 0.7;'>LE FAUX SOIR - FRAKAS PRODUCTIONS</p>", unsafe_allow_html=True)
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 LE FAUX SOIR")
@@ -84,7 +92,7 @@ with tab1:
         
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("🚀 GÉNÉRER LE PDF", use_container_width=True, type="primary"):
+            if st.button("🚀 GÉNÉRER LE PDF", key="btn_gen", use_container_width=True, type="primary"):
                 writer = PdfWriter()
                 carte = [{"n": f.name, "p": len(PdfReader(f).pages)} for f in fichiers_tries]
                 for f in fichiers_tries: writer.append(f)
@@ -95,7 +103,7 @@ with tab1:
                 st.session_state.PDF_name = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
                 st.success("Fusion réussie !")
         with col2:
-            if st.button("🗑️ VIDER TOUT", use_container_width=True):
+            if st.button("🗑️ VIDER TOUT", key="btn_reset", use_container_width=True):
                 st.session_state.PDF_data = None
                 st.rerun()
 
@@ -108,7 +116,7 @@ with tab2:
     PDF_signe = st.file_uploader("uploader_2", type="pdf", label_visibility="collapsed")
     
     if PDF_signe:
-        if st.button("⚡ LANCER L'EXTRACTION", use_container_width=True, type="primary"):
+        if st.button("⚡ LANCER L'EXTRACTION", key="btn_extract", use_container_width=True, type="primary"):
             try:
                 reader = PdfReader(PDF_signe)
                 if "/StructureProd" not in reader.metadata:
