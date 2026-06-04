@@ -7,7 +7,7 @@ from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
 # 1. CONFIGURATION ET DESIGN "APP MOBILE"
-st.set_page_config(page_title="© Le Faux Soir - PDF Manager", page_icon="🎬", layout="centered")
+st.set_page_config(page_title="© PDF Manager", page_icon="🎬", layout="centered")
 
 st.markdown("""
     <style>
@@ -71,12 +71,12 @@ with st.sidebar:
     # Bloc 1
     with st.container(border=True):
         st.markdown("**🚀 1. Préparation**")
-        st.markdown("Déposez les PDFs validés depuis **'OK Laurie'**, générez et téléchargez le fichier unique sur votre ordinateur.")
+        st.markdown("Déposez les PDFs validés, générez et téléchargez le fichier unique sur votre ordinateur.")
     
     # Bloc 2
     with st.container(border=True):
         st.markdown("**✍️ 2. Signature**")
-        st.markdown("Utilisez le compte **Dropbox Sign** Frakas pour faire signer le PDF unique.")
+        st.markdown("Utilisez le compte YouSign pour faire signer le PDF unique.")
     
     # Bloc 3
     with st.container(border=True):
@@ -88,10 +88,10 @@ with st.sidebar:
     st.info("**Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)")
     
     st.markdown(" ")
-    st.caption("🎬 LE FAUX SOIR - FRAKAS PRODUCTIONS")
+    st.caption("🎬 Corentin Pilarczyk")
 
 # --- CONTENU PRINCIPAL ---
-st.title("🎬 LE FAUX SOIR")
+st.title("🎬 Corentin Pilarczyk")
 st.markdown("<p style='font-size: 1.1em; color: gray; margin-top: -20px;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
