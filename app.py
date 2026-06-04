@@ -91,7 +91,7 @@ with st.sidebar:
     st.caption("🎬 Corentin Pilarczyk")
 
 # --- CONTENU PRINCIPAL ---
-st.title("🎬 Corentin Pilarczyk")
+st.title("🎬 PDF Manager")
 st.markdown("<p style='font-size: 1.1em; color: gray; margin-top: -20px;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
 tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
