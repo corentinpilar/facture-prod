@@ -41,15 +41,6 @@ st.markdown("""
         border-bottom: none !important;
     }
     
-    /* 2. BARRE LATÉRALE */
-    [data-testid="stSidebar"] {
-        background-color: #F8F9FB !important;
-    }
-    
-    @media (prefers-color-scheme: dark) {
-        [data-testid="stSidebar"] { background-color: #111111 !important; }
-    }
-
     /* Zone d'upload */
     [data-testid="stFileUploaderFileList"] { display: none !important; }
     div[data-testid="stFileUploaderDropzone"] {
@@ -165,32 +156,6 @@ st.markdown("""
 
 # Initialisation des états pour le reset
 if 'uploader_key' not in st.session_state: st.session_state.uploader_key = 0
-
-# --- BARRE LATÉRALE : GUIDE FIXE ---
-with st.sidebar:
-    st.title("📖 Guide")
-    
-    # Bloc 1
-    with st.container(border=True):
-        st.markdown("**🚀 1. Préparation**")
-        st.markdown("Déposez les PDFs validés, générez et téléchargez le fichier unique sur votre ordinateur.")
-    
-    # Bloc 2
-    with st.container(border=True):
-        st.markdown("**✍️ 2. Signature**")
-        st.markdown("Utilisez le compte YouSign pour faire signer le PDF unique.")
-    
-    # Bloc 3
-    with st.container(border=True):
-        st.markdown("**📦 3. Split & encodage**")
-        st.markdown("Déposez le PDF signé dans l'onglet **EXTRAIRE**. Le système sépare les factures pour l'encodage dans HORUS.")
-    
-    # --- CONTACT ---
-    st.markdown("### 📞 Contact")
-    st.info("**Une question ou suggestion ?** [📩 Envoyez moi un mail!✌🏻](mailto:corentin.pilar@icloud.com)")
-    
-    st.markdown(" ")
-    st.caption("🎬 Corentin Pilarczyk")
 
 # --- CONTENU PRINCIPAL ---
 st.title("🎬 PDF Manager")
