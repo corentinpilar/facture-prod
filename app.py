@@ -2,7 +2,6 @@ import streamlit as st
 import json
 import io
 import zipfile
-import time
 from datetime import datetime
 from pypdf import PdfReader, PdfWriter
 
@@ -58,6 +57,109 @@ st.markdown("""
         border-radius: 20px !important;
         background-color: rgba(255, 75, 75, 0.02) !important;
     }
+
+    /* Page d'accueil */
+    .home-hero {
+        margin-top: 6px;
+        padding: 34px 30px;
+        border-radius: 8px;
+        color: #FFFFFF;
+        background:
+            linear-gradient(135deg, rgba(23, 33, 48, 0.96), rgba(55, 77, 95, 0.92)),
+            repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 16px);
+        border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .home-hero h1 {
+        font-size: 2.1rem;
+        line-height: 1.15;
+        margin: 0 0 12px 0;
+        letter-spacing: 0;
+    }
+
+    .home-hero p {
+        max-width: 650px;
+        color: rgba(255,255,255,0.82);
+        font-size: 1.03rem;
+        margin: 0;
+    }
+
+    .home-kicker {
+        color: #FFD166;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 12px;
+        text-transform: uppercase;
+    }
+
+    .home-panel {
+        padding: 18px;
+        border: 1px solid rgba(49, 61, 78, 0.14);
+        border-radius: 8px;
+        background: #FFFFFF;
+        min-height: 148px;
+        box-shadow: 0 8px 24px rgba(23, 33, 48, 0.06);
+    }
+
+    .home-panel strong {
+        display: block;
+        color: #172130;
+        font-size: 1rem;
+        margin-bottom: 8px;
+    }
+
+    .home-panel span {
+        color: #5D6876;
+        font-size: 0.92rem;
+        line-height: 1.45;
+    }
+
+    .home-step {
+        padding: 14px 0;
+        border-bottom: 1px solid rgba(49, 61, 78, 0.12);
+    }
+
+    .home-step:last-child {
+        border-bottom: none;
+    }
+
+    .home-step-title {
+        color: #172130;
+        font-weight: 700;
+        margin-bottom: 4px;
+    }
+
+    .home-step-body {
+        color: #5D6876;
+        font-size: 0.92rem;
+    }
+
+    .home-badge {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 999px;
+        color: #146C43;
+        background: #EAF7EF;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-top: 18px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+        .home-panel {
+            background: #171717;
+            border-color: rgba(255,255,255,0.12);
+        }
+        .home-panel strong,
+        .home-step-title {
+            color: #F7F7F7;
+        }
+        .home-panel span,
+        .home-step-body {
+            color: #C7C7C7;
+        }
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -94,7 +196,64 @@ with st.sidebar:
 st.title("🎬 PDF Manager")
 st.markdown("<p style='font-size: 1.1em; color: gray; margin-top: -20px;'>Gestionnaire des pièces comptables</p>", unsafe_allow_html=True)
 
-tab1, tab2 = st.tabs(["➕ PRÉPARER", "✂️ EXTRAIRE"])
+tab_home, tab1, tab2 = st.tabs(["🏠 ACCUEIL", "➕ PRÉPARER", "✂️ EXTRAIRE"])
+
+# --- ONGLET 0 : ACCUEIL ---
+with tab_home:
+    st.markdown("""
+        <section class="home-hero">
+            <div class="home-kicker">Production comptable sécurisée</div>
+            <h1>Préparer, signer et retrouver chaque facture sans ressaisie.</h1>
+            <p>
+                PDF Manager centralise les pièces validées, conserve leur structure
+                d'origine et prépare les documents signés pour l'encodage dans HORUS.
+            </p>
+            <span class="home-badge">Flux recommandé : Préparer → YouSign → Extraire</span>
+        </section>
+        """, unsafe_allow_html=True)
+
+    st.markdown(" ")
+    col_home_1, col_home_2, col_home_3 = st.columns(3)
+
+    with col_home_1:
+        st.markdown("""
+            <div class="home-panel">
+                <strong>Ordre maîtrisé</strong>
+                <span>Les PDFs sont regroupés dans un fichier unique, avec une trace de leur nom et de leur pagination.</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col_home_2:
+        st.markdown("""
+            <div class="home-panel">
+                <strong>Signature simplifiée</strong>
+                <span>Un seul document part à la signature, ce qui limite les manipulations et les oublis.</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    with col_home_3:
+        st.markdown("""
+            <div class="home-panel">
+                <strong>Sortie prête HORUS</strong>
+                <span>Après signature, les factures sont séparées et renommées avec la nomenclature attendue.</span>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("### Parcours de production")
+    st.markdown("""
+        <div class="home-step">
+            <div class="home-step-title">1. Préparer le lot</div>
+            <div class="home-step-body">Déposez les PDFs validés dans l'onglet PRÉPARER, puis téléchargez le PDF unique.</div>
+        </div>
+        <div class="home-step">
+            <div class="home-step-title">2. Faire signer</div>
+            <div class="home-step-body">Envoyez le PDF unique via YouSign avec le circuit de signature habituel.</div>
+        </div>
+        <div class="home-step">
+            <div class="home-step-title">3. Extraire pour encodage</div>
+            <div class="home-step-body">Déposez le PDF signé dans l'onglet EXTRAIRE pour obtenir l'archive des documents signés.</div>
+        </div>
+        """, unsafe_allow_html=True)
 
 # --- ONGLET 1 : FUSION ---
 with tab1:
