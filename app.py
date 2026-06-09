@@ -251,7 +251,7 @@ with tab1:
             
             PDF_out = io.BytesIO()
             writer.write(PDF_out)
-            nom_fusion = f"LFS - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
+            nom_fusion = f"FAIRWAY - à signer - {datetime.now().strftime('%d-%m-%Y')}.pdf"
             
             st.download_button(
                 label="🚀 GÉNÉRER & TÉLÉCHARGER",
