@@ -311,7 +311,7 @@ with tab2:
                     st.download_button(
                         label="⚡ TÉLÉCHARGER LES DOCUMENTS SPLITÉS",
                         data=zip_out.getvalue(),
-                        file_name=f"LFS - split - {datetime.now().strftime('%d-%m-%Y')}.zip",
+                        file_name=f"FAIRWAY - split - {datetime.now().strftime('%d-%m-%Y')}.zip",
                         mime="application/zip",
                         use_container_width=True,
                         type="primary"
